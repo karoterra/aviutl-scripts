@@ -2,7 +2,7 @@ root = true
 
 [*]
 indent_style = space
-indent_size = 4
+indent_size = 2
 charset = shift_jis
 end_of_line = crlf
 trim_trailing_whitespace = true

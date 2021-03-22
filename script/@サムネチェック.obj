@@ -1,0 +1,59 @@
+@ニコニコ動画
+--track0:時間透過,0,100,100,1
+--track1:枠透過,0,100,100,1
+--check0:金枠,0
+--dialog:再生時間,video_len="00:00";
+local frame_alpha = obj.track1 / 100
+local length_alpha = obj.track0 / 100
+local pallet = {
+  {0xD8DCDE, 0x546771},
+  {0xF8DD5B, 0xCD9A01},
+}
+local grad_color = pallet[obj.check0 and 2 or 1]
+
+local w, h = obj.screen_w, obj.screen_h
+local sx, sy = w / 160, h / 90
+local s = math.max(sx, sy)
+local tlx, tly = -w / 2, -h / 2
+local trx, try = w / 2, -h / 2
+local brx, bry = w / 2, h / 2
+local blx, bly = -w / 2, h / 2
+local lw = 5 * s
+local tri = 41 * s
+
+-- 枠
+obj.setoption("drawtarget", "tempbuffer", w, h)
+obj.setoption("blend", "alpha_max")
+obj.load("figure", "四角形", 0xffffff, 1)
+obj.drawpoly(tlx,tly,0, tlx+lw,tly,0, tlx+lw,bly,0, tlx,bly,0, 0,0,1,0,1,1,0,1, frame_alpha)
+obj.drawpoly(trx-lw,try,0, trx,try,0, brx,bry,0, brx-lw,bry,0, 0,0,1,0,1,1,0,1, frame_alpha)
+obj.drawpoly(tlx,tly,0, trx,try,0, trx,try+lw,0, tlx,tly+lw,0, 0,0,1,0,1,1,0,1, frame_alpha)
+obj.drawpoly(blx,bly-lw,0, brx,bry-lw,0, brx,bry,0, blx,bly,0, 0,0,1,0,1,1,0,1, frame_alpha)
+-- 左上の三角
+obj.drawpoly(tlx,tly,0, tlx+tri,tly+lw,0, tlx+lw,tly+tri,0, tlx,tly,0, 0,0,1,0,1,1,0,1, frame_alpha)
+obj.copybuffer("obj", "tmp")
+obj.effect("グラデーション", "幅", 1080, "color", grad_color[1], "color2", grad_color[2])
+obj.copybuffer("tmp", "obj")
+
+-- 再生時間
+obj.setoption("blend", 0)
+obj.setfont("MS UI Gothic", s * 10)
+local text = tostring(video_len)
+obj.load("text", text)
+local text_w, text_h = obj.getpixel()
+local padding = 4 * s
+local box_w, box_h = text_w + padding * 2, text_h + padding * 2
+obj.load("figure", "四角形", 0x000000, 1)
+obj.drawpoly(
+  brx-lw-box_w, bry-lw-box_h, 0,
+  brx-lw, bry-lw-box_h, 0,
+  brx-lw, bry-lw, 0,
+  brx-lw-box_w, bry-lw, 0,
+  0,0, obj.w,0, obj.w,obj.h, 0,obj.h,
+  0.8 * length_alpha
+)
+obj.load("text", text)
+obj.draw(brx - lw - box_w / 2, bry - lw - box_h / 2, 0, 1, length_alpha)
+
+obj.setoption("drawtarget", "framebuffer")
+obj.load("tempbuffer")
