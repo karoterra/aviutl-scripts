@@ -1,0 +1,19 @@
+{
+    "files.encoding": "shiftjis",
+    "files.associations": {
+        "*.obj": "lua",
+        "*.anm": "lua",
+        "*.scn": "lua",
+        "*.cam": "lua",
+        "*.tra": "lua"
+    },
+    "[html]": {
+        "files.encoding": "utf8"
+    },
+    "[css]": {
+        "files.encoding": "utf8"
+    },
+    "[javascript]": {
+        "files.encoding": "utf8"
+    }
+}
