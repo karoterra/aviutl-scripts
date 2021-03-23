@@ -1,15 +1,16 @@
 @ニコニコ動画
---track0:時間透過,0,100,100,1
---track1:枠透過,0,100,100,1
+--track0:時間透過,0,100,100
+--track1:枠透過,0,100,100
 --check0:金枠,0
 --dialog:再生時間,video_len="00:00";
 local frame_alpha = obj.track1 / 100
 local length_alpha = obj.track0 / 100
 local pallet = {
-  {0xD8DCDE, 0x546771},
-  {0xF8DD5B, 0xCD9A01},
+  {0xD8DCDE, 0x546771, 0x77868E}, -- silver
+  {0xF8DD5B, 0xCD9A01, 0xCC9900}, -- gold
 }
 local grad_color = pallet[obj.check0 and 2 or 1]
+local draw_popper = true
 
 local w, h = obj.screen_w, obj.screen_h
 local sx, sy = w / 160, h / 90
@@ -21,19 +22,98 @@ local blx, bly = -w / 2, h / 2
 local lw = 5 * s
 local tri = 41 * s
 
+function rotate(x, y, theta)
+  local cos = math.cos(theta)
+  local sin = math.sin(theta)
+  return {x*cos-y*sin, x*sin+y*cos}
+end
+
+function ellipse(cx, cy, rx, ry, theta, color, alpha)
+  local r = math.max(rx, ry)
+  alpha = alpha and alpha or 1
+  obj.load("figure", "円", color, r*2)
+  local p0 = rotate(-rx, -ry, theta)
+  local p1 = rotate(rx, -ry, theta)
+  local p2 = rotate(rx, ry, theta)
+  local p3 = rotate(-rx, ry, theta)
+  obj.drawpoly(
+    cx + p0[1], cy + p0[2], 0,
+    cx + p1[1], cy + p1[2], 0,
+    cx + p2[1], cy + p2[2], 0,
+    cx + p3[1], cy + p3[2], 0,
+    0,0, obj.w,0, obj.w,obj.h, 0,obj.h, alpha
+  )
+end
+
+-- クラッカー
+if draw_popper then
+  obj.setoption("drawtarget", "tempbuffer", 25*s, 25*s)
+  obj.load("figure", "四角形", grad_color[3], 1)
+  obj.drawpoly(
+    10.36*s, 5.18*s, 0,
+    -4.54*s, 9.17*s, 0,
+    -5.64*s, 5.81*s, 0,
+    -2.15*s, -7.48*s, 0
+  )
+  obj.drawpoly(
+    -5.64*s, 5.81*s, 0,
+    -2.81*s, 8.71*s, 0,
+    -3.44*s, 11.24*s, 0,
+    -8.27*s, 6.60*s, 0
+  )
+  ellipse(-6.05*s, 9*s, 3.43*s, 1.08*s, math.rad(44.7), grad_color[3])
+  ellipse(4.58*s, -1.51*s, 9.1*s, 3*s, math.rad(44.7), grad_color[3])
+  obj.setoption("blend", "alpha_sub")
+  ellipse(4.58*s, -1.51*s, 7*s, 2*s, math.rad(44.7), grad_color[3], 1)
+  obj.load("figure", "四角形", grad_color[3], 1)
+  obj.drawpoly(
+    2.08*s, -8.32*s, 0,
+    11.98*s, 0.79*s, 0,
+    8.93*s, 1.36*s, 0,
+    1.62*s, -5.91*s, 0
+  )
+  obj.setoption("blend", 0)
+  obj.drawpoly(
+    8.06*s, -6.01*s, 0,
+    9.03*s, -5.07*s, 0,
+    5.34*s, -1.39*s, 0,
+    4.43*s, -2.38*s, 0
+  )
+  obj.drawpoly(
+    10.8*s, -2.05*s, 0,
+    11.13*s, -0.73*s, 0,
+    6.70*s, 0.45*s, 0,
+    6.34*s, -0.87*s, 0
+  )
+  obj.drawpoly(
+    3.74*s, -8.18*s, 0,
+    5.05*s, -7.76*s, 0,
+    3.84*s, -3.26*s, 0,
+    2.55*s, -3.73*s, 0
+  )
+  obj.copybuffer("cache:popper", "tmp")
+end
+
 -- 枠
 obj.setoption("drawtarget", "tempbuffer", w, h)
-obj.setoption("blend", "alpha_max")
+obj.setoption("blend", 0)
 obj.load("figure", "四角形", 0xffffff, 1)
-obj.drawpoly(tlx,tly,0, tlx+lw,tly,0, tlx+lw,bly,0, tlx,bly,0, 0,0,1,0,1,1,0,1, frame_alpha)
-obj.drawpoly(trx-lw,try,0, trx,try,0, brx,bry,0, brx-lw,bry,0, 0,0,1,0,1,1,0,1, frame_alpha)
-obj.drawpoly(tlx,tly,0, trx,try,0, trx,try+lw,0, tlx,tly+lw,0, 0,0,1,0,1,1,0,1, frame_alpha)
-obj.drawpoly(blx,bly-lw,0, brx,bry-lw,0, brx,bry,0, blx,bly,0, 0,0,1,0,1,1,0,1, frame_alpha)
+obj.drawpoly(tlx,tly,0, tlx+lw,tly,0, tlx+lw,bly,0, tlx,bly,0)
+obj.drawpoly(trx-lw,try,0, trx,try,0, brx,bry,0, brx-lw,bry,0)
+obj.drawpoly(tlx,tly,0, trx,try,0, trx,try+lw,0, tlx,tly+lw,0)
+obj.drawpoly(blx,bly-lw,0, brx,bry-lw,0, brx,bry,0, blx,bly,0)
 -- 左上の三角
-obj.drawpoly(tlx,tly,0, tlx+tri,tly+lw,0, tlx+lw,tly+tri,0, tlx,tly,0, 0,0,1,0,1,1,0,1, frame_alpha)
+obj.drawpoly(tlx,tly,0, tlx+tri,tly+lw,0, tlx+lw,tly+tri,0, tlx,tly,0)
 obj.copybuffer("obj", "tmp")
 obj.effect("グラデーション", "幅", 1080, "color", grad_color[1], "color2", grad_color[2])
-obj.copybuffer("tmp", "obj")
+if draw_popper then
+  obj.copybuffer("tmp", "obj")
+  obj.copybuffer("obj", "cache:popper")
+  obj.draw(tlx+12.5*s, tly+12.5*s, 0)
+  obj.copybuffer("cache:frame", "tmp")
+else
+  obj.copybuffer("cache:frame", "obj")
+end
 
 -- 再生時間
 obj.setoption("blend", 0)
@@ -43,17 +123,25 @@ obj.load("text", text)
 local text_w, text_h = obj.getpixel()
 local padding = 4 * s
 local box_w, box_h = text_w + padding * 2, text_h + padding * 2
+obj.setoption("drawtarget", "tempbuffer", box_w, box_h)
 obj.load("figure", "四角形", 0x000000, 1)
 obj.drawpoly(
-  brx-lw-box_w, bry-lw-box_h, 0,
-  brx-lw, bry-lw-box_h, 0,
-  brx-lw, bry-lw, 0,
-  brx-lw-box_w, bry-lw, 0,
+  -box_w/2, -box_h/2, 0,
+  box_w/2, -box_h/2, 0,
+  box_w/2, box_h/2, 0,
+  -box_w/2, box_h/2, 0,
   0,0, obj.w,0, obj.w,obj.h, 0,obj.h,
-  0.8 * length_alpha
+  0.8
 )
 obj.load("text", text)
-obj.draw(brx - lw - box_w / 2, bry - lw - box_h / 2, 0, 1, length_alpha)
+obj.draw()
+obj.copybuffer("cache:length", "tmp")
+
+obj.setoption("drawtarget", "tempbuffer", w, h)
+obj.copybuffer("obj", "cache:frame")
+obj.draw(0, 0, 0, 1, frame_alpha)
+obj.copybuffer("obj", "cache:length")
+obj.draw(brx-lw-box_w/2, bry-lw-box_h/2, 0, 1, length_alpha)
 
 obj.setoption("drawtarget", "framebuffer")
 obj.load("tempbuffer")
