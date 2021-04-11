@@ -1,0 +1,51 @@
+@ゲームスタート
+--track0:分割数,1,2000,270
+--track1:波の数,0,100,3.25
+--track2:時間1,0,100,0.47
+--track3:時間2,0,100,0.16
+--color:0x000000
+
+local w, h = obj.screen_w, obj.screen_h
+local half_w, half_h = w / 2, h / 2
+local div_y = obj.track0
+local y_step = h / div_y
+local freq = obj.track1
+local len1 = obj.track2 -- 27.43-27.9-28.06
+local len2 = obj.track3
+
+function easing(x, a, b)
+  if x <= a then
+    return b / a * x
+  else
+    return (1 - b) / (1 - a) * (x - 1) + 1
+  end
+end
+
+obj.setoption("drawtarget", "tempbuffer", w, h)
+obj.setoption("blend", "alpha_add")
+obj.load("figure", "四角形", color, 1)
+
+local cx = -1
+if obj.time < len1 then
+  cx = 1 - obj.time / len1
+  cx = easing(cx, 0.35, 0.15)
+elseif obj.time < len1 + len2 then
+  cx = (len1 - obj.time) / len2
+  cx = easing(cx + 1, 0.27, 0.15) - 1
+end
+cx = cx * half_w
+local a = (cx > 0) and (half_w - cx) or (half_w + cx)
+
+function wave(y)
+  return a * math.cos((y / h + 0.5) * 2 * math.pi * freq)
+end
+
+for y1 = -half_h, half_h, y_step do
+  local y2 = y1 + y_step
+  local x1 = cx + wave(y1)
+  local x2 = cx + wave(y2)
+  obj.drawpoly(-half_w,y1,0, x1,y1,0, x2,y2,0, -half_w,y2,0)
+end
+
+obj.setoption("drawtarget", "framebuffer")
+obj.load("tempbuffer")
