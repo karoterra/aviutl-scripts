@@ -1,0 +1,11 @@
+--track0:X1,-1000,1000,-50,0.01
+--track1:Y1,-1000,1000,0,0.01
+--track2:X2,-1000,1000,50,0.01
+--track3:Y2,-1000,1000,0,0.01
+
+KaroterraDynamicPolygon = {
+  obj.track0, obj.track1,
+  obj.track2, obj.track3
+}
+obj.setoption("drawtarget", "tempbuffer", 1, 1)
+obj.load("tempbuffer")

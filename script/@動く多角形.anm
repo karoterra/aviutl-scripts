@@ -1,0 +1,193 @@
+@頂点追加
+--track0:X1,-1000,1000,-50,0.01
+--track1:Y1,-1000,1000,0,0.01
+--track2:X2,-1000,1000,50,0.01
+--track3:Y2,-1000,1000,0,0.01
+
+local n = #KaroterraDynamicPolygon
+KaroterraDynamicPolygon[n+1] = obj.track0
+KaroterraDynamicPolygon[n+2] = obj.track1
+KaroterraDynamicPolygon[n+3] = obj.track2
+KaroterraDynamicPolygon[n+4] = obj.track3
+
+
+@直線描画
+--track0:ライン幅,0,1000,10
+--track1:頂点数数,2,20,20,1
+--dialog:色/col,color=0xffffff;角,p0=3;シャープ限界,p1=5;端,p2=0;アンチエイリアス/chk,p3=1
+--check0:閉じる,1
+--[[
+  角
+    0: 角処理なし
+    1: 丸
+    2: ベベル
+    3: シャープ
+  シャープ限界
+    角がシャープの時，ライン幅に対してどれだけ角を尖らせるか
+  端
+    0: フラット
+    1: 丸
+    2: 四角
+]]
+
+local lw = obj.track0 / 2
+local num = obj.track1 * 2
+local corner = p0
+local sharpLimit = p1
+local edge = p2
+local antialias = p3
+local close = obj.check0
+local kdp = KaroterraDynamicPolygon
+
+if #kdp < num then
+  num = #kdp
+end
+if num == 4 then
+  close = false
+end
+
+function rotate(x, y, theta)
+  local cos = math.cos(theta)
+  local sin = math.sin(theta)
+  return x*cos-y*sin, x*sin+y*cos
+end
+
+function calcLineCoef(x1, y1, x2, y2)
+  local a = (y2 - y1) / (x2 - x1)
+  local b = y1 - a * x1
+  return a, b
+end
+
+function calcIntersection(a1, b1, a2, b2)
+  local x = (b2 - b1) / (a1 - a2)
+  local y = a1 * x + b1
+  return x, y
+end
+
+function radDiff(x, y)
+  local z = x - y
+  if z > math.pi then
+    z = z - 2 * math.pi
+  elseif z < -math.pi then
+    z = z + 2 * math.pi
+  end
+  return z
+end
+
+function makeLine(x1, y1, x2, y2)
+  local theta = math.atan2(y2-y1, x2-x1)
+  local dx, dy = rotate(0, lw, theta)
+  line = {
+    x1, y1, x2, y2, theta,
+    x1+dx,y1+dy, x1-dx,y1-dy, x2-dx,y2-dy, x2+dx,y2+dy
+  }
+  return line
+end
+
+-- 描画する直線の整理
+local lines = {}
+for i = 1, num-3, 2 do
+  lines[#lines+1] = makeLine(kdp[i], kdp[i+1], kdp[i+2], kdp[i+3])
+end
+if close then
+  lines[#lines+1] = makeLine(kdp[num-1], kdp[num], kdp[1], kdp[2])
+end
+
+-- フレームバッファサイズの決定
+local w, h = 0, 0
+for i = 1, #kdp-1, 2 do
+  local x, y = math.abs(kdp[i]), math.abs(kdp[i+1])
+  if x > w then
+    w = x
+  end
+  if y > h then
+    h = y
+  end
+end
+if corner == 3 then
+  w = w + lw * math.max(sharpLimit, 1)
+  h = h + lw * math.max(sharpLimit, 1)
+else
+  w = w + lw
+  h = h + lw
+end
+
+-- 描画
+obj.setoption("antialias", antialias)
+obj.setoption("drawtarget", "tempbuffer", w*2, h*2)
+obj.setoption("blend", "alpha_add")
+obj.load("figure", "四角形", color, 1)
+
+-- 直線
+function drawline(l)
+  obj.drawpoly(l[6],l[7],0, l[8],l[9],0, l[10],l[11],0, l[12],l[13],0)
+end
+
+for i = 1, #lines do
+  drawline(lines[i])
+end
+
+-- 角
+function drawCorner(l1, l2)
+  if corner == 1 then
+    obj.load("figure", "円", color, lw*2+2)
+    obj.draw(l1[3], l1[4])
+  elseif corner == 2 then
+    obj.load("figure", "四角形", color, 1)
+    if radDiff(l2[5], l1[5]) > 0 then
+      obj.drawpoly(l1[10],l1[11],0, l2[8],l2[9],0, l1[12],l1[13],0, l2[6],l2[7],0)
+    else
+      obj.drawpoly(l1[10],l1[11],0, l2[6],l2[7],0, l1[12],l1[13],0, l2[8],l2[9],0)
+    end
+  elseif corner == 3 then
+    obj.load("figure", "四角形", color, 1)
+    if radDiff(l2[5], l1[5]) > 0 then
+      local a1, b1 = calcLineCoef(l1[8], l1[9], l1[10], l1[11])
+      local a2, b2 = calcLineCoef(l2[8], l2[9], l2[10], l2[11])
+      local x3, y3 = calcIntersection(a1, b1, a2, b2)
+      local len = math.sqrt((l1[3]-x3)^2 + (l1[4]-y3)^2)
+      if len / lw <= sharpLimit then
+        obj.drawpoly(l1[3],l1[4],0, l1[10],l1[11],0, x3,y3,0, l2[8],l2[9],0)
+      else
+        obj.drawpoly(l1[10],l1[11],0, l2[8],l2[9],0, l1[12],l1[13],0, l2[6],l2[7],0)
+      end
+    else
+      local a1, b1 = calcLineCoef(l1[6], l1[7], l1[12], l1[13])
+      local a2, b2 = calcLineCoef(l2[6], l2[7], l2[12], l2[13])
+      local x3, y3 = calcIntersection(a1, b1, a2, b2)
+      local len = math.sqrt((l1[3]-x3)^2 + (l1[4]-y3)^2)
+      if len / lw <= sharpLimit then
+        obj.drawpoly(l1[3],l1[4],0, l2[6],l2[7],0, x3,y3,0, l1[12],l1[13],0)
+      else
+        obj.drawpoly(l1[10],l1[11],0, l2[6],l2[7],0, l1[12],l1[13],0, l2[8],l2[9],0)
+      end
+    end
+  end
+end
+
+for i = 1, #lines-1 do
+  drawCorner(lines[i], lines[i+1])
+end
+if close then
+  drawCorner(lines[#lines], lines[1])
+end
+
+-- 端
+if not close and edge == 1 then
+  obj.load("figure", "円", color, lw*2+2)
+  obj.draw(lines[1][1], lines[1][2])
+  obj.draw(lines[#lines][3], lines[#lines][4])
+elseif not close and edge == 2 then
+  obj.load("figure", "四角形", color, 1)
+  local l = lines[1]
+  local dx1, dy1 = rotate(-lw, lw, l[5])
+  local dx2, dy2 = rotate(-lw, -lw, l[5])
+  obj.drawpoly(l[1]+dx1,l[2]+dy1,0, l[1]+dx2,l[2]+dy2,0, l[8],l[9],0, l[6],l[7],0)
+  l = lines[#lines]
+  dx1, dy1 = rotate(lw, -lw, l[5])
+  dx2, dy2 = rotate(lw, lw, l[5])
+  obj.drawpoly(l[3]+dx1,l[4]+dy1,0, l[3]+dx2,l[4]+dy2,0, l[12],l[13],0, l[10],l[11],0)
+end
+
+obj.setoption("drawtarget", "framebuffer")
+obj.load("tempbuffer")
