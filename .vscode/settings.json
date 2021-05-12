@@ -1,11 +1,13 @@
 {
-    "files.encoding": "shiftjis",
     "files.associations": {
         "*.obj": "lua",
         "*.anm": "lua",
         "*.scn": "lua",
         "*.cam": "lua",
         "*.tra": "lua"
+    },
+    "[lua]": {
+      "files.encoding": "shiftjis"
     },
     "[html]": {
         "files.encoding": "utf8"

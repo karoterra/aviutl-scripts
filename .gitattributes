@@ -1,5 +1,8 @@
-*.obj linguist-language=Lua
-*.anm linguist-language=Lua
-*.scn linguist-language=Lua
-*.cam linguist-language=Lua
-*.tra linguist-language=Lua
+* text=auto
+
+*.lua text eol=crlf linguist-language=Lua
+*.obj text eol=crlf linguist-language=Lua
+*.anm text eol=crlf linguist-language=Lua
+*.scn text eol=crlf linguist-language=Lua
+*.cam text eol=crlf linguist-language=Lua
+*.tra text eol=crlf linguist-language=Lua

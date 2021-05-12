@@ -1,12 +1,15 @@
 root = true
 
 [*]
-indent_style = space
-indent_size = 2
-charset = shift_jis
-end_of_line = crlf
+charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
+
+[*.{lua,obj,anm,scn,cam,tra}]
+charset = shift_jis
+indent_size = 2
+indent_style = space
+end_of_line = crlf
 
 [*.html]
 indent_size = 2
