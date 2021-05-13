@@ -3,7 +3,14 @@
 #include <vector>
 #include <algorithm>
 #include <memory>
+
+#ifdef _DEBUG
+
 #include <cstdio>
+#include <Windows.h>
+#include <tchar.h>
+
+#endif // _DEBUG
 
 using namespace std;
 
@@ -75,17 +82,12 @@ using LineFiller = void(*)(const Image &, VecEdgePtr::iterator, VecEdgePtr::iter
 
 #ifdef _DEBUG
 
-static lua_State *debugLua;
-
 // デバッグテキスト出力
 template <typename ... Args>
-void debug_printf(lua_State *L, const char *fmt, Args ... args) {
-    size_t len = snprintf(nullptr, 0, fmt, args ...);
-    vector<char> buf(len + 1);
-    snprintf(&buf[0], len + 1, fmt, args ...);
-    lua_getglobal(L, "debug_print");
-    lua_pushstring(L, &buf[0]);
-    lua_call(L, 1, 0);
+void debug_printf(LPCTSTR fmt, Args ... args) {
+    TCHAR buf[1024];
+    _sntprintf_s(&buf[0], 1024, _TRUNCATE, fmt, args ...);
+    OutputDebugString(&buf[0]);
 }
 
 #endif // _DEBUG
@@ -357,10 +359,6 @@ void fill_WN(const Image &image, VecEdgePtr::iterator first, VecEdgePtr::iterato
 
 // ポリゴンを塗りつぶす
 int fillPoly(lua_State *L) {
-#ifdef _DEBUG
-    debugLua = L;
-#endif // _DEBUG
-
     const Image image{
         reinterpret_cast<Pixel *>(lua_touserdata(L, 1)),  // data
         lua_tointeger(L, 2),    // width
