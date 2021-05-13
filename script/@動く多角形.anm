@@ -11,12 +11,12 @@ KaroterraDynamicPolygon[n+3] = obj.track2
 KaroterraDynamicPolygon[n+4] = obj.track3
 
 
-@直線描画
+@描画
 --track0:ライン幅,0,1000,10
 --track1:頂点数数,2,20,20,1
 --track2:ラインA,0,100,100
 --track3:フィルA,0,100,100
---dialog:ライン色/col,color=0xffffff;フィル/col,color2=0x000000;角(0 - 3),p0=3;シャープ限界(>0),p1=5;端(0 - 2),p2=0;フィルモード(0 - 2),p7=2;ラインAA/chk,p3=1;フィルAA(0 - 2),p8=1;頂点表示/chk,p4=0;頂点色/col,color3=0xff0000;頂点サイズ,p5=10;頂点A(0 - 100),p6=100
+--dialog:ライン色/col,color=0xffffff;フィル/col,color2=0x000000;角(0 - 3),p0=3;シャープ限界(>0),p1=5;端(0 - 2),p2=0;フィルモード(0 - 2),p7=2;ラインAA/chk,p3=1;フィルAA(0 - 2),p8=1;頂点表示/chk,p4=0;頂点色/col,color3=0xff0000;頂点サイズ,p5=10;頂点A(0 - 100),p6=100;中心(0 - 2),p9=0;座標系(0 - 4),p10=0
 --check0:閉じる,1
 --[[
   A はアルファ(不透明度)、AAはアンチエイリアス
@@ -31,6 +31,24 @@ KaroterraDynamicPolygon[n+4] = obj.track3
     0: フラット
     1: 丸
     2: 四角
+  フィルモード
+    0: 無効
+    1: Crossing Number algorithm
+    2: Winding Number algorithm
+  フィルAA
+    0: 無効
+    1: アンチエイリアスその1
+    2: アンチエイリアスその2
+  中心
+    0: オブジェクト座標が中心
+    1: 多角形を含む最小の矩形の中心が中心
+    2: 多角形の重心が中心
+  座標系
+    0: 直交座標(絶対)
+    1: 直交座標(相対)
+    2: 曲座標(絶対)
+    3: 極座標(相対,偏角リセット)
+    4: 極座標(相対,偏角持越し)
 ]]
 
 local lw = obj.track0 / 2
@@ -47,6 +65,8 @@ local showVertex = p4 == 1 and vertexAlpha > 0
 local vertexSize = p5
 local fillMode = p7
 local fillAntialias = p8
+local centerMode = p9
+local coordType = p10
 local kdp = KaroterraDynamicPolygon
 local libKDP = require("KaroterraDynamicPolygon")
 
@@ -65,13 +85,13 @@ function rotate(x, y, theta)
 end
 
 function calcLineCoef(x1, y1, x2, y2)
-  local a = (y2 - y1) / (x2 - x1)
+  local a = (y2 - y1) / (x2 - x1 + 1e-7)
   local b = y1 - a * x1
   return a, b
 end
 
 function calcIntersection(a1, b1, a2, b2)
-  local x = (b2 - b1) / (a1 - a2)
+  local x = (b2 - b1) / (a1 - a2 + 1e-7)
   local y = a1 * x + b1
   return x, y
 end
@@ -89,7 +109,7 @@ end
 function makeLine(x1, y1, x2, y2)
   local theta = math.atan2(y2-y1, x2-x1)
   local dx, dy = rotate(0, lw, theta)
-  line = {
+  local line = {
     x1, y1, x2, y2, theta,
     x1+dx,y1+dy, x1-dx,y1-dy, x2-dx,y2-dy, x2+dx,y2+dy
   }
@@ -137,6 +157,59 @@ function drawCorner(l1, l2)
   end
 end
 
+-- 座標系の変換
+if coordType == 1 then  -- 直交座標(相対)
+  for i = 3, num-1, 2 do
+    kdp[i] = kdp[i] + kdp[i-2]
+    kdp[i+1] = kdp[i+1] + kdp[i-1]
+  end
+elseif coordType == 2 then -- 極座標
+  for i = 1, num-1, 2 do
+    local r, theta = kdp[i], math.rad(kdp[i+1])
+    kdp[i], kdp[i+1] = r * math.cos(theta), r * math.sin(theta)
+  end
+elseif coordType == 3 then -- 極座標(相対,偏角リセット)
+  local r, theta = kdp[1], math.rad(kdp[2])
+  kdp[1], kdp[2] = r * math.cos(theta), r * math.sin(theta)
+  for i = 3, num-1, 2 do
+    r, theta = kdp[i], math.rad(kdp[i+1])
+    kdp[i], kdp[i+1] = r*math.cos(theta) + kdp[i-2], r*math.sin(theta) + kdp[i-1]
+  end
+elseif coordType == 4 then -- 極座標(相対,偏角持越し)
+  local r, theta = kdp[1], math.rad(kdp[2])
+  kdp[1], kdp[2] = r * math.cos(theta), r * math.sin(theta)
+  for i = 3, num-1, 2 do
+    r, theta = kdp[i], theta + math.rad(kdp[i+1])
+    kdp[i], kdp[i+1] = r*math.cos(theta) + kdp[i-2], r*math.sin(theta) + kdp[i-1]
+  end
+end
+
+-- 中心
+local minX, maxX, minY, maxY = kdp[1], kdp[1], kdp[2], kdp[2]
+local accX, accY = kdp[1], kdp[2]
+for i = 3, num-1, 2 do
+  if kdp[i] < minX then
+    minX = kdp[i]
+  elseif kdp[i] > maxX then
+    maxX = kdp[i]
+  end
+  if kdp[i+1] < minY then
+    minY = kdp[i+1]
+  elseif kdp[i+1] > maxY then
+    maxY = kdp[i+1]
+  end
+  accX = accX + kdp[i]
+  accY = accY + kdp[i+1]
+end
+
+local cx, cy = (minX + maxX) / 2, (minY + maxY) / 2
+local gx, gy = accX / (num / 2), accY / (num / 2)
+for i = 1, num-1, 2 do
+  kdp[i] = kdp[i] - cx
+  kdp[i+1] = kdp[i+1] - cy
+end
+
+
 -- 描画する直線の整理
 local lines = {}
 for i = 1, num-3, 2 do
@@ -147,28 +220,20 @@ if close then
 end
 
 -- フレームバッファサイズの決定
-local w, h = 0, 0
-for i = 1, num-1, 2 do
-  local x, y = math.abs(kdp[i]), math.abs(kdp[i+1])
-  if x > w then
-    w = x
-  end
-  if y > h then
-    h = y
-  end
-end
-local margin = lw
+local w = math.max(maxX - cx, cx - minX) * 2
+local h = math.max(maxY - cy, cy - minY) * 2
+local margin = lw * 2
 if corner == 3 then
-  margin = math.max(margin, lw * sharpLimit)
+  margin = math.max(margin, lw * sharpLimit * 2)
 end
 if showVertex then
-  margin = math.max(margin, vertexSize / 2)
+  margin = math.max(margin, vertexSize)
 end
 w, h = w + margin, h + margin
 
 -- 描画
 obj.setoption("antialias", antialias)
-obj.setoption("drawtarget", "tempbuffer", w*2, h*2)
+obj.setoption("drawtarget", "tempbuffer", w, h)
 
 -- 直線
 obj.setoption("blend", "alpha_add")
@@ -203,7 +268,7 @@ end
 obj.copybuffer("cache:stroke", "tmp")
 
 obj.setoption("blend", 0)
-obj.setoption("drawtarget", "tempbuffer", w*2, h*2)
+obj.setoption("drawtarget", "tempbuffer", w, h)
 obj.load("tempbuffer")
 local data, buf_w, buf_h = obj.getpixeldata()
 libKDP.fillPoly(data, buf_w, buf_h, kdp, num, color2, fillMode, fillAntialias)
@@ -222,3 +287,15 @@ end
 
 obj.setoption("drawtarget", "framebuffer")
 obj.load("tempbuffer")
+if centerMode == 1 then
+  obj.ox = cx
+  obj.oy = cy
+elseif centerMode == 2 then
+  obj.ox = gx
+  obj.oy = gy
+  obj.cx = obj.cx + gx - cx
+  obj.cy = obj.cy + gy - cy
+else
+  obj.cx = obj.cx - cx
+  obj.cy = obj.cy - cy
+end
