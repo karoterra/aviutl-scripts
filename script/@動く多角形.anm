@@ -157,37 +157,30 @@ function drawCorner(l1, l2)
   end
 end
 
--- 座標系の変換
-if coordType == 1 then  -- 直交座標(相対)
-  for i = 3, num-1, 2 do
-    kdp[i] = kdp[i] + kdp[i-2]
-    kdp[i+1] = kdp[i+1] + kdp[i-1]
-  end
-elseif coordType == 2 then -- 極座標
-  for i = 1, num-1, 2 do
-    local r, theta = kdp[i], math.rad(kdp[i+1])
-    kdp[i], kdp[i+1] = r * math.cos(theta), r * math.sin(theta)
-  end
-elseif coordType == 3 then -- 極座標(相対,偏角リセット)
-  local r, theta = kdp[1], math.rad(kdp[2])
+-- 座標系の変換と中心の計算
+local r, theta = 0, 0
+if 2 <= coordType and coordType <= 4 then
+  r, theta = kdp[1], math.rad(kdp[2])
   kdp[1], kdp[2] = r * math.cos(theta), r * math.sin(theta)
-  for i = 3, num-1, 2 do
-    r, theta = kdp[i], math.rad(kdp[i+1])
-    kdp[i], kdp[i+1] = r*math.cos(theta) + kdp[i-2], r*math.sin(theta) + kdp[i-1]
-  end
-elseif coordType == 4 then -- 極座標(相対,偏角持越し)
-  local r, theta = kdp[1], math.rad(kdp[2])
-  kdp[1], kdp[2] = r * math.cos(theta), r * math.sin(theta)
-  for i = 3, num-1, 2 do
-    r, theta = kdp[i], theta + math.rad(kdp[i+1])
-    kdp[i], kdp[i+1] = r*math.cos(theta) + kdp[i-2], r*math.sin(theta) + kdp[i-1]
-  end
 end
 
--- 中心
 local minX, maxX, minY, maxY = kdp[1], kdp[1], kdp[2], kdp[2]
 local accX, accY = kdp[1], kdp[2]
 for i = 3, num-1, 2 do
+  if coordType == 1 then  -- 直交座標(相対)
+    kdp[i] = kdp[i] + kdp[i-2]
+    kdp[i+1] = kdp[i+1] + kdp[i-1]
+  elseif coordType == 2 then  -- 極座標
+    r, theta = kdp[i], math.rad(kdp[i+1])
+    kdp[i], kdp[i+1] = r * math.cos(theta), r * math.sin(theta)
+  elseif coordType == 3 then  -- 極座標(相対,偏角リセット)
+    r, theta = kdp[i], math.rad(kdp[i+1])
+    kdp[i], kdp[i+1] = r*math.cos(theta) + kdp[i-2], r*math.sin(theta) + kdp[i-1]
+  elseif coordType == 4 then  -- 極座標(相対,偏角持越し)
+    r, theta = kdp[i], theta + math.rad(kdp[i+1])
+    kdp[i], kdp[i+1] = r*math.cos(theta) + kdp[i-2], r*math.sin(theta) + kdp[i-1]
+  end
+
   if kdp[i] < minX then
     minX = kdp[i]
   elseif kdp[i] > maxX then
@@ -208,7 +201,6 @@ for i = 1, num-1, 2 do
   kdp[i] = kdp[i] - cx
   kdp[i+1] = kdp[i+1] - cy
 end
-
 
 -- 描画する直線の整理
 local lines = {}
