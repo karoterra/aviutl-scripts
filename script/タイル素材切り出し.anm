@@ -1,0 +1,28 @@
+--track0:幅,1,10000,32,1
+--track1:高さ,1,10000,32,1
+--track2:X位置,0,10000,0,1
+--track3:Y位置,0,10000,0,1
+--[[
+  小さい画像がグリッド状に並んでいる大きな画像に対してこれを適用すると、
+  小さい画像を切り出せる。
+]]
+
+local width = obj.track0
+local height = obj.track1
+local posX = obj.track2
+local posY = obj.track3
+
+obj.setoption("drawtarget", "tempbuffer", width, height)
+obj.drawpoly(
+  -width / 2, -height / 2, 0,
+  width / 2, -height / 2, 0,
+  width / 2, height / 2, 0,
+  -width / 2, height / 2, 0,
+  width * posX, height * posY,
+  width * (posX + 1), height * posY,
+  width * (posX + 1), height * (posY + 1),
+  width * posX, height * (posY + 1)
+)
+
+obj.setoption("drawtarget", "framebuffer")
+obj.load("tempbuffer")
