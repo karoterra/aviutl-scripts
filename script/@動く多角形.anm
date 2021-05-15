@@ -16,7 +16,7 @@ KaroterraDynamicPolygon[n+4] = obj.track3
 --track1:頂点数数,2,20,20,1
 --track2:ラインA,0,100,100
 --track3:フィルA,0,100,100
---dialog:ライン色/col,color=0xffffff;フィル/col,color2=0x000000;角(0 - 3),p0=3;シャープ限界(>0),p1=5;端(0 - 2),p2=0;フィルモード(0 - 2),p7=2;ラインAA/chk,p3=1;フィルAA(0 - 2),p8=1;頂点表示/chk,p4=0;頂点色/col,color3=0xff0000;頂点サイズ,p5=10;頂点A(0 - 100),p6=100;中心(0 - 2),p9=0;座標系(0 - 4),p10=0
+--dialog:ライン色/col,color=0xffffff;フィル/col,color2=0x000000;角(0 - 3),p0=3;シャープ限界(>0),p1=5;端(0 - 2),p2=0;フィルモード(0 - 2),p7=2;ラインAA/chk,p3=1;フィルAA(0 - 2),p8=1;頂点表示/chk,p4=0;頂点色/col,color3=0xff0000;頂点サイズ,p5=10;頂点A(0 - 100),p6=100;中心(0 - 2),p9=0;座標系(0 - 4),p10=0;ラインパターン,p11={};オフセット(≧0),p12=0
 --check0:閉じる,1
 --[[
   A はアルファ(不透明度)、AAはアンチエイリアス
@@ -53,7 +53,7 @@ KaroterraDynamicPolygon[n+4] = obj.track3
 
 local lw = obj.track0 / 2
 local num = obj.track1 * 2
-local corner = p0
+local cornerType = p0
 local sharpLimit = p1
 local edge = p2
 local antialias = p3
@@ -67,6 +67,8 @@ local fillMode = p7
 local fillAntialias = p8
 local centerMode = p9
 local coordType = p10
+local strokePattern = p11
+local patternOffset = p12 * 2 * lw
 local kdp = KaroterraDynamicPolygon
 local libKDP = require("KaroterraDynamicPolygon")
 
@@ -120,18 +122,115 @@ function drawline(l)
   obj.drawpoly(l[6],l[7],0, l[8],l[9],0, l[10],l[11],0, l[12],l[13],0)
 end
 
+function drawFan(cx, cy, r, ang, rot, color)
+  obj.load("figure", "円", color, r * 2)
+  local sr, cr = r * math.sin(rot), r * math.cos(rot)
+  if ang < math.pi / 4 then
+    local u0, v0 = r, r
+    local u1, v1 = r, 0
+    local t = r * math.tan(ang)
+    local u2, v2 = r + t, 0
+    local u3, v3 = r, r
+    local x0, y0 = cx, cy
+    local x1, y1 = cx + sr, cy - cr
+    local x2, y2 = x1 + t * math.cos(rot), y1 + t * math.sin(rot)
+    local x3, y3 = cx, cy
+    obj.drawpoly(x0,y0,0, x1,y1,0, x2,y2,0, x3,y3,0, u0,v0, u1,v1, u2,v2, u3,v3)
+  elseif ang < math.pi * (3 / 4) then
+    local u0, v0 = r, r
+    local u1, v1 = r, 0
+    local u2, v2 = r*2, 0
+    local t = r * (1 + math.tan(ang - math.pi / 2))
+    local u3, v3 = r*2, t
+    local x0, y0 = cx, cy
+    local x1, y1 = cx + sr, cy - cr
+    local x2, y2 = x1 + cr, y1 + sr
+    local x3, y3 = x2 - t * math.sin(rot), y2 + t * math.cos(rot)
+    obj.drawpoly(x0,y0,0, x1,y1,0, x2,y2,0, x3,y3,0, u0,v0, u1,v1, u2,v2, u3,v3)
+  elseif ang < math.pi * (5 / 4) then
+    local u0, v0 = r, r
+    local u1, v1 = r, 0
+    local u2, v2 = r*2, 0
+    local u3, v3 = r*2, r
+    local x0, y0 = cx, cy
+    local x1, y1 = cx + sr, cy - cr
+    local x2, y2 = x1 + cr, y1 + sr
+    local x3, y3 = cx + cr, cy + sr
+    obj.drawpoly(x0,y0,0, x1,y1,0, x2,y2,0, x3,y3,0, u0,v0, u1,v1, u2,v2, u3,v3)
+    u1, v1 = u3, v3
+    u2, v2 = r*2, r*2
+    local t = r * math.tan(math.pi - ang)
+    u3, v3 = r + t, r*2
+    x1, y1 = x3, y3
+    x2, y2 = x1 - sr, y1 + cr
+    x3, y3 = x2 + (t - r) * math.cos(rot), y2 + (t - r) * math.sin(rot)
+    obj.drawpoly(x0,y0,0, x1,y1,0, x2,y2,0, x3,y3,0, u0,v0, u1,v1, u2,v2, u3,v3)
+  elseif ang < math.pi * (7 / 4) then
+    local u0, v0 = r, 0
+    local u1, v1 = r*2, 0
+    local u2, v2 = r*2, r*2
+    local u3, v3 = r, r*2
+    local x0, y0 = cx + sr, cy - cr
+    local x1, y1 = x0 + cr, y0 + sr
+    local x2, y2 = x1 - 2*sr, y1 + 2*cr
+    local x3, y3 = cx - sr, cy + cr
+    obj.drawpoly(x0,y0,0, x1,y1,0, x2,y2,0, x3,y3,0, u0,v0, u1,v1, u2,v2, u3,v3)
+    u0, v0 = r, r
+    u1, v1 = u3, v3
+    u2, v2 = 0, 2*r
+    local t = r * math.tan(math.pi * 3 / 2 - ang)
+    u3, v3 = 0, r + t
+    x0, y0 = cx, cy
+    x1, y1 = cx - sr, cy + cr
+    x2, y2 = x1 - cr, y1 - sr
+    x3, y3 = x2 + (r - t) * math.sin(rot), y2 - (r - t) * math.cos(rot)
+    obj.drawpoly(x0,y0,0, x1,y1,0, x2,y2,0, x3,y3,0, u0,v0, u1,v1, u2,v2, u3,v3)
+  else
+    local u0, v0 = r, 0
+    local u1, v1 = r*2, 0
+    local u2, v2 = r*2, r*2
+    local u3, v3 = r, r*2
+    local x0, y0 = cx + sr, cy - cr
+    local x1, y1 = x0 + cr, y0 + sr
+    local x2, y2 = x1 - 2*sr, y1 + 2*cr
+    local x3, y3 = cx - sr, cy + cr
+    obj.drawpoly(x0,y0,0, x1,y1,0, x2,y2,0, x3,y3,0, u0,v0, u1,v1, u2,v2, u3,v3)
+    u0, v0 = r, r
+    u1, v1 = u3, v3
+    u2, v2 = 0, 2*r
+    u3, v3 = 0, r
+    x0, y0 = cx, cy
+    x1, y1 = cx - sr, cy + cr
+    x2, y2 = x1 - cr, y1 - sr
+    x3, y3 = x2 + sr, y2 - cr
+    obj.drawpoly(x0,y0,0, x1,y1,0, x2,y2,0, x3,y3,0, u0,v0, u1,v1, u2,v2, u3,v3)
+    u1, v1 = u3, v3
+    u2, v2 = 0, 0
+    local t = r * (1 - math.tan(math.pi * 2 - ang))
+    u3, v3 = t, 0
+    x1, y1 = x3, y3
+    x2, y2 = x1 + sr, y1 - cr
+    x3, y3 = x2 + t * math.cos(rot), y2 + t * math.sin(rot)
+    obj.drawpoly(x0,y0,0, x1,y1,0, x2,y2,0, x3,y3,0, u0,v0, u1,v1, u2,v2, u3,v3)
+  end
+end
+
 function drawCorner(l1, l2)
-  if corner == 1 then
-    obj.load("figure", "円", color, lw*2+2)
-    obj.draw(l1[3], l1[4])
-  elseif corner == 2 then
+  if cornerType == 1 then
+    local ang = radDiff(l2[5], l1[5])
+    if ang > 0 then
+      drawFan(l1[3], l1[4], lw+1, ang, l1[5], color)
+    else
+      drawFan(l1[3], l1[4], lw+1, -ang, l2[5]+math.pi, color)
+    end
+  elseif cornerType == 2 then
     obj.load("figure", "四角形", color, 1)
     if radDiff(l2[5], l1[5]) > 0 then
-      obj.drawpoly(l1[10],l1[11],0, l2[8],l2[9],0, l1[12],l1[13],0, l2[6],l2[7],0)
+      obj.drawpoly(l1[3],l1[4],0, l1[10],l1[11],0, l2[8],l2[9],0, l1[3],l1[4],0)
     else
-      obj.drawpoly(l1[10],l1[11],0, l2[6],l2[7],0, l1[12],l1[13],0, l2[8],l2[9],0)
+      obj.drawpoly(l1[3],l1[4],0, l2[6],l2[7],0, l1[12],l1[13],0, l1[3],l1[4],0)
     end
-  elseif corner == 3 then
+  elseif cornerType == 3 then
     obj.load("figure", "四角形", color, 1)
     if radDiff(l2[5], l1[5]) > 0 then
       local a1, b1 = calcLineCoef(l1[8], l1[9], l1[10], l1[11])
@@ -215,7 +314,7 @@ end
 local w = math.max(maxX - cx, cx - minX) * 2
 local h = math.max(maxY - cy, cy - minY) * 2
 local margin = lw * 2
-if corner == 3 then
+if cornerType == 3 then
   margin = math.max(margin, lw * sharpLimit * 2)
 end
 if showVertex then
@@ -230,15 +329,85 @@ obj.setoption("drawtarget", "tempbuffer", w, h)
 -- 直線
 obj.setoption("blend", "alpha_add")
 obj.load("figure", "四角形", color, 1)
-for i = 1, #lines do
-  drawline(lines[i])
+local i = 1
+while i <= #strokePattern do
+  if strokePattern[i] <= 0 then
+    table.remove(strokePattern, i)
+  else
+    i = i + 1
+  end
+end
+local corners = {}
+if #strokePattern == 0 then
+  for i = 1, #lines do
+    drawline(lines[i])
+    corners[#corners+1] = true
+  end
+else
+  local patternIndex = 0
+  local blank = false
+  local nextLen = 2 * lw * strokePattern[1]
+  local patternLen = nextLen
+  local patternProgress = 0
+
+  while true do
+    if nextLen > patternOffset then
+      nextLen = nextLen - patternOffset
+      patternProgress = patternOffset
+    break
+    end
+    patternOffset = patternOffset - nextLen
+    patternIndex = (patternIndex + 1) % #strokePattern
+    nextLen = 2 * lw * strokePattern[patternIndex + 1]
+    patternLen = nextLen
+    blank = not blank
+  end
+
+  for i = 1, #lines do
+    local nx, ny = lines[i][3] - lines[i][1], lines[i][4] - lines[i][2]
+    local len = math.sqrt(nx*nx + ny*ny)
+    nx, ny = nx / len, ny / len
+    local progress = 0
+    local xs1, ys1, xs2, ys2 = lines[i][6], lines[i][7], lines[i][8], lines[i][9]
+
+    while progress < len do
+      local currentLen = nextLen
+      local step = 0
+      if currentLen <= len - progress then
+        step = currentLen
+        patternIndex = (patternIndex + 1) % #strokePattern
+        nextLen = 2 * lw * strokePattern[patternIndex + 1]
+      else
+        step = len - progress
+        nextLen = currentLen - step
+      end
+      progress = progress + step
+      local dx, dy = nx * step, ny * step
+      local xe1, ye1, xe2, ye2 = xs1 + dx, ys1 + dy, xs2 + dx, ys2 + dy
+      if not blank then
+        obj.drawpoly(xs1,ys1,0, xs2,ys2,0, xe2,ye2,0, xe1,ye1,0)
+      end
+      xs1, ys1, xs2, ys2 = xe1, ye1, xe2, ye2
+      patternProgress = patternProgress + step
+      if patternProgress >= patternLen then
+        patternProgress = 0
+        patternLen = nextLen
+        blank = not blank
+      end
+    end
+    corners[#corners+1] = not blank
+  end
 end
 -- 角
 for i = 1, #lines-1 do
-  drawCorner(lines[i], lines[i+1])
+  if corners[i] then
+    drawCorner(lines[i], lines[i+1])
+  end
 end
 if close then
-  drawCorner(lines[#lines], lines[1])
+  if corners[#corners] then
+    drawCorner(lines[#lines], lines[1])
+  end
 end
 -- 端
 if not close and edge == 1 then
