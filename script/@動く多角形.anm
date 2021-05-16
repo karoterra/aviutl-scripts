@@ -56,7 +56,7 @@ KaroterraDynamicPolygon[n+4] = obj.track3
 ]]
 
 local lw = obj.track0 / 2
-local num = obj.track1 * 2
+local num = math.floor(obj.track1) * 2
 local cornerType = p0
 local sharpLimit = p1
 local edge = p2

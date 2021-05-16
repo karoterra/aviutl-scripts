@@ -9,8 +9,8 @@
 
 local width = obj.track0
 local height = obj.track1
-local posX = obj.track2
-local posY = obj.track3
+local posX = math.floor(obj.track2)
+local posY = math.floor(obj.track3)
 
 obj.setoption("drawtarget", "tempbuffer", width, height)
 obj.drawpoly(
