@@ -164,7 +164,7 @@ void makeEdges(const VecPoint &vertexes, VecEdgePtr &edges) {
         edge->x = (edge->downward) ? v0.x : v1.x;
         edge->a = (double)(v1.x - v0.x) / (double)(v1.y - v0.y);
 
-        if ((v1.y - v0.y) * (v1.y - v2.y) <= 0) {
+        if ((v1.y - v0.y) * (v1.y - v2.y) < 0) {
             if (edge->downward) {
                 v1.y--;
             }
