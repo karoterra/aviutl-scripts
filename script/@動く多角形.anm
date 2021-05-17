@@ -12,7 +12,7 @@ KaroterraDynamicPolygon[n+4] = obj.track3
 
 
 @描画
---track0:ライン幅,0,4000,10
+--track0:ライン幅,1,4000,10,1
 --track1:頂点数,2,100,20,1
 --track2:ラインA,0,100,100
 --track3:フィルA,0,100,100
