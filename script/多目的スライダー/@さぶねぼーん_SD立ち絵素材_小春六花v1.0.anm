@@ -1,0 +1,234 @@
+@その1
+--track0:目線,1,3,1,1
+--track1:眉,0,7,0,1
+--track2:目,0,35,0,1
+--track3:口,0,73,0,1
+--dialog:目パチ間隔(秒),pbi=10;┣速さ,pbs=2;┗オフセット,pbo=0;口パク速さ,pls=1;┣子音処理(0-2),plm=1;┗準備がなくても有効/chk,pla=1
+
+local blinkInterval = pbi
+local blinkSpeed = pbs
+local blinkOffset = pbo
+local lipSpeed = pls
+local lipMode = plm
+local lipAlways = pla == 1
+
+local PSDToolKit = require("PSDToolKit")
+
+local prefixes = {
+  {"v1.上向き顔/", "v1.上向き顔/目リスト/", "v1.上向き顔/涙/"},
+  {"v1.水平向き顔/", "v1.水平向き顔/目リスト(水平向き)/", "v1.水平向き顔/涙/*水平向き目用/"},
+  {"v1.水平向き顔/", "v1.水平向き顔/目リスト(カメラ目線)/", "v1.水平向き顔/涙/*カメラ目線目用/"},
+}
+local index = math.floor(obj.track0)
+if PSD.valueholder ~= nil then
+  index = PSD.valueholder:get(index, PSD.valueholderindex, 0)
+  PSD.valueholderindex = PSD.valueholderindex + 1
+end
+if index < 1 then
+  index = 1
+elseif index > #prefixes then
+  index = #prefixes
+end
+prefix = prefixes[index]
+
+local values = {
+  prefix[1].."マユゲリスト/*通常",
+  prefix[1].."マユゲリスト/*穏やか",
+  prefix[1].."マユゲリスト/*強気",
+  prefix[1].."マユゲリスト/*怒り",
+  prefix[1].."マユゲリスト/*悲しみ",
+  prefix[1].."マユゲリスト/*困り1",
+  prefix[1].."マユゲリスト/*困り2",
+}
+PSD:addstate(values, obj.track1)
+
+local values = {
+  PSDToolKit.Blinker.new({prefix[2].."*目閉じ1",prefix[2].."*通常/*半目",prefix[2].."*通常/*開き"},blinkInterval,blinkSpeed,blinkOffset),
+  PSDToolKit.Blinker.new({prefix[2].."*目閉じ1",prefix[2].."*通常/*半目",prefix[2].."*通常/*ちょい閉じ"},blinkInterval,blinkSpeed,blinkOffset),
+  PSDToolKit.Blinker.new({prefix[2].."*目閉じ1",prefix[2].."*通常/*ほぼ閉じ",prefix[2].."*通常/*半目"},blinkInterval,blinkSpeed,blinkOffset),
+  PSDToolKit.Blinker.new({prefix[2].."*目閉じ1",prefix[2].."*ぐるぐる目/*半目",prefix[2].."*ぐるぐる目/*開き"},blinkInterval,blinkSpeed,blinkOffset),
+  PSDToolKit.Blinker.new({prefix[2].."*目閉じ1",prefix[2].."*ぐるぐる目/*半目",prefix[2].."*ぐるぐる目/*ちょい閉じ"},blinkInterval,blinkSpeed,blinkOffset),
+  PSDToolKit.Blinker.new({prefix[2].."*目閉じ1",prefix[2].."*ぐるぐる目/*ほぼ閉じ",prefix[2].."*ぐるぐる目/*半目"},blinkInterval,blinkSpeed,blinkOffset),
+  PSDToolKit.Blinker.new({prefix[2].."*目閉じ1",prefix[2].."*星しいたけ/*半目",prefix[2].."*星しいたけ/*開き"},blinkInterval,blinkSpeed,blinkOffset),
+  PSDToolKit.Blinker.new({prefix[2].."*目閉じ1",prefix[2].."*星しいたけ/*半目",prefix[2].."*星しいたけ/*ちょい閉じ"},blinkInterval,blinkSpeed,blinkOffset),
+  PSDToolKit.Blinker.new({prefix[2].."*目閉じ1",prefix[2].."*星しいたけ/*ほぼ閉じ",prefix[2].."*星しいたけ/*半目"},blinkInterval,blinkSpeed,blinkOffset),
+  PSDToolKit.Blinker.new({prefix[2].."*目閉じ1",prefix[2].."*レ〇プ目/*半目",prefix[2].."*レ〇プ目/*開き"},blinkInterval,blinkSpeed,blinkOffset),
+  PSDToolKit.Blinker.new({prefix[2].."*目閉じ1",prefix[2].."*レ〇プ目/*半目",prefix[2].."*レ〇プ目/*ちょい閉じ"},blinkInterval,blinkSpeed,blinkOffset),
+  PSDToolKit.Blinker.new({prefix[2].."*目閉じ1",prefix[2].."*レ〇プ目/*ほぼ閉じ",prefix[2].."*レ〇プ目/*半目"},blinkInterval,blinkSpeed,blinkOffset),
+  prefix[2].."*通常/*開き",
+  prefix[2].."*通常/*ちょい閉じ",
+  prefix[2].."*通常/*半目",
+  prefix[2].."*通常/*ほぼ閉じ",
+  prefix[2].."*ぐるぐる目/*開き",
+  prefix[2].."*ぐるぐる目/*ちょい閉じ",
+  prefix[2].."*ぐるぐる目/*半目",
+  prefix[2].."*ぐるぐる目/*ほぼ閉じ",
+  prefix[2].."*星しいたけ/*開き",
+  prefix[2].."*星しいたけ/*ちょい閉じ",
+  prefix[2].."*星しいたけ/*半目",
+  prefix[2].."*星しいたけ/*ほぼ閉じ",
+  prefix[2].."*レ〇プ目/*開き",
+  prefix[2].."*レ〇プ目/*ちょい閉じ",
+  prefix[2].."*レ〇プ目/*半目",
+  prefix[2].."*レ〇プ目/*ほぼ閉じ",
+  prefix[2].."*ウインク",
+  prefix[2].."*目閉じ1",
+  prefix[2].."*目閉じ2",
+  prefix[2].."*-%20-",
+  prefix[2].."*><",
+  prefix[2].."*〇%20〇1",
+  prefix[2].."*〇%20〇2",
+}
+PSD:addstate(values, obj.track2)
+
+local values = {
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*笑顔あ/*閉じ",prefix[1].."口リスト/*笑顔あ/*半開け",prefix[1].."口リスト/*笑顔あ/*半開け",prefix[1].."口リスト/*笑顔あ/*半開け",prefix[1].."口リスト/*笑顔あ/*開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*笑顔い/*閉じ",prefix[1].."口リスト/*笑顔い/*半開け",prefix[1].."口リスト/*笑顔い/*半開け",prefix[1].."口リスト/*笑顔い/*半開け",prefix[1].."口リスト/*笑顔い/*開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*笑顔う/*閉じ",prefix[1].."口リスト/*笑顔う/*半開け",prefix[1].."口リスト/*笑顔う/*半開け",prefix[1].."口リスト/*笑顔う/*半開け",prefix[1].."口リスト/*笑顔う/*開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*笑顔え/*閉じ",prefix[1].."口リスト/*笑顔え/*半開け",prefix[1].."口リスト/*笑顔え/*半開け",prefix[1].."口リスト/*笑顔え/*半開け",prefix[1].."口リスト/*笑顔え/*開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*笑顔お/*閉じ",prefix[1].."口リスト/*笑顔お/*半開け",prefix[1].."口リスト/*笑顔お/*半開け",prefix[1].."口リスト/*笑顔お/*半開け",prefix[1].."口リスト/*笑顔お/*開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*真顔あ/*閉じ",prefix[1].."口リスト/*真顔あ/*半開け",prefix[1].."口リスト/*真顔あ/*半開け",prefix[1].."口リスト/*真顔あ/*半開け",prefix[1].."口リスト/*真顔あ/*開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*真顔い/*閉じ",prefix[1].."口リスト/*真顔い/*半開け",prefix[1].."口リスト/*真顔い/*半開け",prefix[1].."口リスト/*真顔い/*半開け",prefix[1].."口リスト/*真顔い/*開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*真顔う/*閉じ",prefix[1].."口リスト/*真顔う/*半開け",prefix[1].."口リスト/*真顔う/*半開け",prefix[1].."口リスト/*真顔う/*半開け",prefix[1].."口リスト/*真顔う/*開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*真顔え/*閉じ",prefix[1].."口リスト/*真顔え/*半開け",prefix[1].."口リスト/*真顔え/*半開け",prefix[1].."口リスト/*真顔え/*半開け",prefix[1].."口リスト/*真顔え/*開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*真顔お/*閉じ",prefix[1].."口リスト/*真顔お/*半開け",prefix[1].."口リスト/*真顔お/*半開け",prefix[1].."口リスト/*真顔お/*半開け",prefix[1].."口リスト/*真顔お/*開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*笑顔あ/*閉じ",prefix[1].."口リスト/*笑顔あ/*半開け",prefix[1].."口リスト/*笑顔あ/*半開け",prefix[1].."口リスト/*笑顔あ/*開け",prefix[1].."口リスト/*笑顔あ/*大開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*笑顔い/*閉じ",prefix[1].."口リスト/*笑顔い/*半開け",prefix[1].."口リスト/*笑顔い/*半開け",prefix[1].."口リスト/*笑顔い/*開け",prefix[1].."口リスト/*笑顔い/*大開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*笑顔う/*閉じ",prefix[1].."口リスト/*笑顔う/*半開け",prefix[1].."口リスト/*笑顔う/*半開け",prefix[1].."口リスト/*笑顔う/*開け",prefix[1].."口リスト/*笑顔う/*大開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*笑顔え/*閉じ",prefix[1].."口リスト/*笑顔え/*半開け",prefix[1].."口リスト/*笑顔え/*半開け",prefix[1].."口リスト/*笑顔え/*開け",prefix[1].."口リスト/*笑顔え/*大開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*笑顔お/*閉じ",prefix[1].."口リスト/*笑顔お/*半開け",prefix[1].."口リスト/*笑顔お/*半開け",prefix[1].."口リスト/*笑顔お/*開け",prefix[1].."口リスト/*笑顔お/*大開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*真顔あ/*閉じ",prefix[1].."口リスト/*真顔あ/*半開け",prefix[1].."口リスト/*真顔あ/*半開け",prefix[1].."口リスト/*真顔あ/*開け",prefix[1].."口リスト/*真顔あ/*大開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*真顔い/*閉じ",prefix[1].."口リスト/*真顔い/*半開け",prefix[1].."口リスト/*真顔い/*半開け",prefix[1].."口リスト/*真顔い/*開け",prefix[1].."口リスト/*真顔い/*大開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*真顔う/*閉じ",prefix[1].."口リスト/*真顔う/*半開け",prefix[1].."口リスト/*真顔う/*半開け",prefix[1].."口リスト/*真顔う/*開け",prefix[1].."口リスト/*真顔う/*大開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*真顔え/*閉じ",prefix[1].."口リスト/*真顔え/*半開け",prefix[1].."口リスト/*真顔え/*半開け",prefix[1].."口リスト/*真顔え/*開け",prefix[1].."口リスト/*真顔え/*大開け"},lipSpeed,lipAlways),
+  PSDToolKit.LipSyncSimple.new({prefix[1].."口リスト/*真顔お/*閉じ",prefix[1].."口リスト/*真顔お/*半開け",prefix[1].."口リスト/*真顔お/*半開け",prefix[1].."口リスト/*真顔お/*開け",prefix[1].."口リスト/*真顔お/*大開け"},lipSpeed,lipAlways),
+  prefix[1].."口リスト/*笑顔あ/*大開け",
+  prefix[1].."口リスト/*笑顔あ/*開け",
+  prefix[1].."口リスト/*笑顔あ/*半開け",
+  prefix[1].."口リスト/*笑顔あ/*閉じ",
+  prefix[1].."口リスト/*笑顔い/*大開け",
+  prefix[1].."口リスト/*笑顔い/*開け",
+  prefix[1].."口リスト/*笑顔い/*半開け",
+  prefix[1].."口リスト/*笑顔い/*閉じ",
+  prefix[1].."口リスト/*笑顔う/*大開け",
+  prefix[1].."口リスト/*笑顔う/*開け",
+  prefix[1].."口リスト/*笑顔う/*半開け",
+  prefix[1].."口リスト/*笑顔う/*閉じ",
+  prefix[1].."口リスト/*笑顔え/*大開け",
+  prefix[1].."口リスト/*笑顔え/*開け",
+  prefix[1].."口リスト/*笑顔え/*半開け",
+  prefix[1].."口リスト/*笑顔え/*閉じ",
+  prefix[1].."口リスト/*笑顔お/*大開け",
+  prefix[1].."口リスト/*笑顔お/*開け",
+  prefix[1].."口リスト/*笑顔お/*半開け",
+  prefix[1].."口リスト/*笑顔お/*閉じ",
+  prefix[1].."口リスト/*真顔あ/*大開け",
+  prefix[1].."口リスト/*真顔あ/*開け",
+  prefix[1].."口リスト/*真顔あ/*半開け",
+  prefix[1].."口リスト/*真顔あ/*閉じ",
+  prefix[1].."口リスト/*真顔い/*大開け",
+  prefix[1].."口リスト/*真顔い/*開け",
+  prefix[1].."口リスト/*真顔い/*半開け",
+  prefix[1].."口リスト/*真顔い/*閉じ",
+  prefix[1].."口リスト/*真顔う/*大開け",
+  prefix[1].."口リスト/*真顔う/*開け",
+  prefix[1].."口リスト/*真顔う/*半開け",
+  prefix[1].."口リスト/*真顔う/*閉じ",
+  prefix[1].."口リスト/*真顔え/*大開け",
+  prefix[1].."口リスト/*真顔え/*開け",
+  prefix[1].."口リスト/*真顔え/*半開け",
+  prefix[1].."口リスト/*真顔え/*閉じ",
+  prefix[1].."口リスト/*真顔お/*大開け",
+  prefix[1].."口リスト/*真顔お/*開け",
+  prefix[1].."口リスト/*真顔お/*半開け",
+  prefix[1].."口リスト/*真顔お/*閉じ",
+  prefix[1].."口リスト/*開け_にやけ",
+  prefix[1].."口リスト/*開け_にやけ＆よだれ",
+  prefix[1].."口リスト/*開け_ハート口",
+  prefix[1].."口リスト/*開け_ハート口ハート抜き",
+  prefix[1].."口リスト/*開け_△",
+  prefix[1].."口リスト/*開け_ふわあああ",
+  prefix[1].."口リスト/*閉じ_自信ありげ",
+  prefix[1].."口リスト/*閉じ_不機嫌",
+  prefix[1].."口リスト/*閉じ_もぐもぐ",
+  prefix[1].."口リスト/*閉じ_ぷくー",
+  prefix[1].."口リスト/*閉じ_むぐぐ",
+  PSDToolKit.LipSyncLab.new({a=prefix[1].."口リスト/*笑顔あ/*開け",i=prefix[1].."口リスト/*笑顔い/*開け",u=prefix[1].."口リスト/*笑顔う/*開け",e=prefix[1].."口リスト/*笑顔え/*開け",o=prefix[1].."口リスト/*笑顔お/*開け",N=prefix[1].."口リスト/*笑顔あ/*閉じ"},lipMode,lipAlways),
+  PSDToolKit.LipSyncLab.new({a=prefix[1].."口リスト/*真顔あ/*開け",i=prefix[1].."口リスト/*真顔い/*開け",u=prefix[1].."口リスト/*真顔う/*開け",e=prefix[1].."口リスト/*真顔え/*開け",o=prefix[1].."口リスト/*真顔お/*開け",N=prefix[1].."口リスト/*真顔あ/*閉じ"},lipMode,lipAlways),
+}
+PSD:addstate(values, obj.track3)
+
+
+@その2
+--track0:頬,0,3,0,1
+--track1:涙,0,4,0,1
+--track2:顔色,0,2,0,1
+--track3:漫符(左),0,18,0,1
+
+local values = {
+  prefix[1].."頬リスト/*通常",
+  prefix[1].."頬リスト/*ちょい赤面",
+  prefix[1].."頬リスト/*赤面",
+}
+PSD:addstate(values, obj.track0)
+
+local values = {
+  prefix[3].."*通常用",
+  prefix[3].."*ウインク用",
+  prefix[3].."*目閉じ1用",
+  prefix[3].."*目閉じ2用",
+}
+PSD:addstate(values, obj.track1)
+
+local values = {
+  prefix[1].."顔色/*蒼白",
+  prefix[1].."顔色/*顔影",
+}
+PSD:addstate(values, obj.track2)
+
+local values = {
+  "v1.漫符/左付き/キラーン",
+  "v1.漫符/左付き/ニコニコ",
+  "v1.漫符/左付き/気付き",
+  "v1.漫符/左付き/ビクッ",
+  "v1.漫符/左付き/ハート",
+  "v1.漫符/左付き/！！",
+  "v1.漫符/左付き/？",
+  "v1.漫符/左付き/？(逆向き)",
+  "v1.漫符/左付き/眠そう",
+  "v1.漫符/左付き/もやもや",
+  "v1.漫符/左付き/飛び汗",
+  "v1.漫符/左付き/怒りマーク",
+  "v1.漫符/左付き/大型汗1",
+  "v1.漫符/左付き/大型汗2",
+  "v1.漫符/左付き/頬に汗",
+  "v1.漫符/左付き/ばってんテープ",
+  "v1.漫符/左付き/溜め息1",
+  "v1.漫符/左付き/溜め息2",
+}
+PSD:addstate(values, obj.track3)
+
+@その3
+--track0:漫符(右),0,18,0,1
+
+local values = {
+  "v1.漫符/右付き/キラーン",
+  "v1.漫符/右付き/ニコニコ",
+  "v1.漫符/右付き/気付き",
+  "v1.漫符/右付き/ビクッ",
+  "v1.漫符/右付き/ハート",
+  "v1.漫符/右付き/！！",
+  "v1.漫符/右付き/？",
+  "v1.漫符/右付き/？(逆向き)",
+  "v1.漫符/右付き/眠そう",
+  "v1.漫符/右付き/もやもや",
+  "v1.漫符/右付き/飛び汗",
+  "v1.漫符/右付き/怒りマーク",
+  "v1.漫符/右付き/大型汗1",
+  "v1.漫符/右付き/大型汗2",
+  "v1.漫符/右付き/頬に汗",
+  "v1.漫符/右付き/ばってんテープ",
+  "v1.漫符/右付き/溜め息1",
+  "v1.漫符/右付き/溜め息2",
+}
+PSD:addstate(values, obj.track0)
