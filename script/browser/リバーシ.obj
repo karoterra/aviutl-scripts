@@ -1,0 +1,18 @@
+--track0:サイズ,100,10000,500,1
+--track1:ターン,0,64,0,1
+--check0:DevTools,0
+--file:
+tonumber(nil)
+
+local size = obj.track0
+local turn = math.floor(obj.track1)
+
+obj.setoption("drawtarget", "tempbuffer", size, size)
+obj.load("tempbuffer")
+
+require("browser").execute({
+  dir = "リバーシ",
+  param = turn,
+  userfile = file,
+  dev = obj.check0,
+})

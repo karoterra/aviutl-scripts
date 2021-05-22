@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  #container {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: calc(100% * 0.5 / 101);
+    background-image: url("background.svg");
+    background-size: cover;
+  }
+
+  #field {
+    width: 100%;
+    height: 100%;
+  }
+
+  .row {
+    font-size: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 12.5%;
+    padding: 0.5% 0;
+  }
+
+  .cell {
+    box-sizing: border-box;
+    padding: 0 0.5%;
+    width: 12.5%;
+    height: 100%;
+    display: inline-block;
+    background-size: cover;
+    background-origin: content-box;
+    background-repeat: no-repeat;
+  }
+
+  .white {
+    background-image: url("white.svg");
+  }
+
+  .black {
+    background-image: url("black.svg");
+  }
+
+  #error {
+    position: absolute;
+    color: red;
+    font-size: 5vw;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+</style>
+<div id="error"></div>
+<div id="container">
+  <div id="field">
+    <div class="row">
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+    </div>
+    <div class="row">
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+    </div>
+    <div class="row">
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+    </div>
+    <div class="row">
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+    </div>
+    <div class="row">
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+    </div>
+    <div class="row">
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+    </div>
+    <div class="row">
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+    </div>
+    <div class="row">
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+    </div>
+  </div>
+</div>
+<script type="module">
+  import { Reversi } from './reversi.js';
+
+  let file = "a";
+  let record = [];
+
+  function setError(msg) {
+    document.getElementById('error').textContent = msg;
+  }
+
+  async function getRecord() {
+    const text = await fetch('/userfile').then(r => r.text());
+    const lines = text.split('\n');
+    const record = []
+    for (let i = 0; i < lines.length; i++) {
+      const data = lines[i].split(',');
+      if (data.length < 2) {
+        continue;
+      }
+      const x = parseInt(data[0], 10) - 1;
+      const y = parseInt(data[1], 10) - 1;
+      record.push([x, y]);
+    }
+    return record;
+  }
+
+  async function render(params) {
+    if (file !== params.userfile) {
+      file = params.userfile;
+      if (file != null) {
+        record = await getRecord();
+      }
+    }
+    if (file == null) {
+      setError('ファイルが選択されていません');
+      return '';
+    }
+
+    const turn = Math.min(params.param, record.length);
+
+    const reversi = new Reversi();
+    let msg = '';
+    for (let i = 0; i < turn; i++) {
+      const x = record[i][0], y = record[i][1];
+      if (x < 0 || y < 0) {
+        reversi.pass();
+      } else if (!reversi.put(x, y)) {
+        msg = `ターン${i+1}: (${x+1}, ${y+1})には置けません`;
+        break;
+      }
+    }
+
+    const field = document.getElementById('field');
+    for (let y = 0; y < field.children.length; y++) {
+      for (let x = 0; x < field.children[y].children.length; x++) {
+        const elem = field.children[y].children[x];
+        switch (reversi.field[y][x]) {
+          case Reversi.Black:
+            elem.classList.add("black");
+            elem.classList.remove("white");
+            break;
+          case Reversi.White:
+            elem.classList.add("white");
+            elem.classList.remove("black");
+            break;
+          default:
+            elem.classList.remove("white");
+            elem.classList.remove("black");
+        }
+      }
+    }
+
+    setError(msg);
+
+    return '';
+  }
+  AviUtlBrowser.registerRenderer(render);
+</script>
+</html>

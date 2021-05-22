@@ -18,6 +18,9 @@
 ### 多目的スライダー
 [PSDToolKit](https://github.com/oov/aviutl_psdtoolkit)で使う多目的スライダー用スクリプト。
 
+### browser
+[aviutl_browser](https://github.com/oov/aviutl_browser)を使うスクリプト。
+
 ### ヨッシーアイランド
 ヨッシーアイランドゲームスタート時に横に流れる黒背景っぽいもの。
 
