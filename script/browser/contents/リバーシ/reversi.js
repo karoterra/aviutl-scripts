@@ -17,16 +17,23 @@ export class Reversi {
     [-1, 1]
   ];
 
-  constructor() {
+  constructor(init) {
     this.order = false;
     this.field = new Array(Reversi.Height);
     for (let y = 0; y < Reversi.Height; y++) {
-      this.field[y] = new Array(Reversi.Width).fill(Reversi.Empty);
+      if (init == null) {
+        this.field[y] = new Array(Reversi.Width).fill(Reversi.Empty);
+      } else {
+        this.field[y] = init[y].slice();
+      }
     }
-    this.field[3][3] = Reversi.White;
-    this.field[4][4] = Reversi.White;
-    this.field[3][4] = Reversi.Black;
-    this.field[4][3] = Reversi.Black;
+
+    if (init == null) {
+      this.field[3][3] = Reversi.White;
+      this.field[4][4] = Reversi.White;
+      this.field[3][4] = Reversi.Black;
+      this.field[4][3] = Reversi.Black;
+    }
   }
 
   takeTurn() {

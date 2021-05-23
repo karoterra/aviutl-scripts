@@ -146,7 +146,7 @@
   import { Reversi } from './reversi.js';
 
   let file = "a";
-  let record = [];
+  let record = null;
 
   function setError(msg) {
     document.getElementById('error').textContent = msg;
@@ -154,16 +154,10 @@
 
   async function getRecord() {
     const text = await fetch('/userfile').then(r => r.text());
-    const lines = text.split('\n');
-    const record = []
-    for (let i = 0; i < lines.length; i++) {
-      const data = lines[i].split(',');
-      if (data.length < 2) {
-        continue;
-      }
-      const x = parseInt(data[0], 10) - 1;
-      const y = parseInt(data[1], 10) - 1;
-      record.push([x, y]);
+    const record = JSON.parse(text);
+    for (let i = 0; i < record.records.length; i++) {
+      record.records[i][0]--;
+      record.records[i][1]--;
     }
     return record;
   }
@@ -180,16 +174,17 @@
       return '';
     }
 
-    const turn = Math.min(params.param, record.length);
+    const turn = Math.min(params.param, record.records.length);
 
-    const reversi = new Reversi();
+    const reversi = new Reversi(record.init);
     let msg = '';
     for (let i = 0; i < turn; i++) {
-      const x = record[i][0], y = record[i][1];
+      const x = record.records[i][0], y = record.records[i][1];
       if (x < 0 || y < 0) {
         reversi.pass();
       } else if (!reversi.put(x, y)) {
-        msg = `ターン${i+1}: (${x+1}, ${y+1})には置けません`;
+        const color = (reversi.getColor() == Reversi.White) ? '白' : '黒';
+        msg = `ターン${i+1}(${color}): (${x+1}, ${y+1})には置けません`;
         break;
       }
     }
