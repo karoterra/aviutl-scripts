@@ -8,6 +8,7 @@
 Kuwahara filter により油絵風の加工を施す。
 高橋直哉氏の[油絵スクリプト](https://www.nicovideo.jp/watch/sm35695116)の処理速度を向上させたもの。
 `油絵.anm`、`KaroterraOilPainting.dll` が必要。
+ニコニコ動画に[紹介動画](https://www.nicovideo.jp/watch/sm39051118)あり。
 
 ### 動く多角形
 トラックバーで頂点座標を設定して多角形を描画する。
