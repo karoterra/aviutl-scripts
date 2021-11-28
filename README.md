@@ -2,6 +2,13 @@
 
 自作のAviUtlスクリプト置き場
 
+## ダウンロード
+スクリプトは[ここ](https://github.com/karoterra/aviutl-scripts)の「Code」→「Download ZIP」からどうぞ。
+DLL が必要なものについては
+[Releases](https://github.com/karoterra/aviutl-scripts/releases)
+からダウンロード。
+
+
 ## コンテンツ
 
 ### 油絵
@@ -27,6 +34,10 @@ Kuwahara filter により油絵風の加工を施す。
 
 ### browser
 [aviutl_browser](https://github.com/oov/aviutl_browser)を使うスクリプト。
+
+### 曲げKR
+画像を曲線に沿って曲げる。
+`KaroterraBend.lua` が必要。
 
 ### ヨッシーアイランド
 ヨッシーアイランドゲームスタート時に横に流れる黒背景っぽいもの。
