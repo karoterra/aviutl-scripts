@@ -49,7 +49,11 @@ void main(void){
     this.gl.useProgram(program);
 
     this.uniLocation[0] = this.gl.getUniformLocation(program, 'time');
-    this.uniLocation[1] = this.gl.getUniformLocation(program, 'resolution');
+    this.uniLocation[1] = this.gl.getUniformLocation(program, 'totalTime');
+    this.uniLocation[2] = this.gl.getUniformLocation(program, 'frame');
+    this.uniLocation[3] = this.gl.getUniformLocation(program, 'totalFrame');
+    this.uniLocation[4] = this.gl.getUniformLocation(program, 'resolution');
+    this.uniLocation[5] = this.gl.getUniformLocation(program, 'track');
 
     const vbo = this.gl.createBuffer();
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo);
@@ -85,13 +89,21 @@ void main(void){
     }
   }
 
-  async render(params) {
+  clear() {
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+  }
+
+  render(params) {
     this.resize();
 
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+    this.clear();
 
     this.gl.uniform1f(this.uniLocation[0], params.time);
-    this.gl.uniform2fv(this.uniLocation[1], [this.canvas.width, this.canvas.height]);
+    this.gl.uniform1f(this.uniLocation[1], params.totaltime);
+    this.gl.uniform1i(this.uniLocation[2], params.frame);
+    this.gl.uniform1i(this.uniLocation[3], params.totalframe);
+    this.gl.uniform2fv(this.uniLocation[4], [this.canvas.width, this.canvas.height]);
+    this.gl.uniform4fv(this.uniLocation[5], params.track);
 
     this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
     this.gl.flush();

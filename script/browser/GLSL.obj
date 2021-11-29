@@ -1,13 +1,21 @@
+--track0:track0,-10000,10000,0
+--track1:track1,-10000,10000,0
+--track2:track2,-10000,10000,0
+--track3:track3,-10000,10000,0
 --check0:DevTools,0
 --file:
 tonumber(nil)
 
 obj.setoption("drawtarget", "tempbuffer", obj.screen_w, obj.screen_h)
 obj.load("tempbuffer")
+local param = string.format("%d/%d/%f/%f/%f/%f/%f/%f",
+  obj.frame, obj.totalframe, obj.time, obj.totaltime,
+  obj.track0, obj.track1, obj.track2, obj.track3
+)
 
 require("browser").execute({
   dir = "GLSL",
-  param = string.format("%f", obj.time),
+  param = param,
   userfile = file,
   dev = obj.check0,
 })

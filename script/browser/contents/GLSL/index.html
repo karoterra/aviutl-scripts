@@ -14,13 +14,6 @@
       display: block;
     }
   </style>
-  <script id="vs" type="x-shader/x-vertex">
-attribute vec3 position;
-
-void main(void){
-  gl_Position = vec4(position, 1.0);
-}
-  </script>
 </head>
 
 <body>
@@ -35,7 +28,11 @@ void main(void){
   const parseParams = params => {
     const split = params.split('/');
     return {
-      time: parseFloat(split[0]),
+      frame: parseInt(split[0]),
+      totalframe: parseInt(split[1]),
+      time: parseFloat(split[2]),
+      totaltime: parseFloat(split[3]),
+      track: split.slice(4, 8).map(x => parseFloat(x)),
     };
   }
 
@@ -50,6 +47,7 @@ void main(void){
       return '';
     }
     if (glsl.program == null) {
+      glsl.clear();
       return '';
     }
 
