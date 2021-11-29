@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
+  <script id="vs" type="x-shader/x-vertex">
+attribute vec3 position;
+
+void main(void){
+  gl_Position = vec4(position, 1.0);
+}
+  </script>
+</head>
+
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+  import { GLSL } from './glsl.js';
+
+  let file = 'a';
+  const canvas = document.getElementById('canvas');
+  const glsl = new GLSL(canvas);
+
+  const parseParams = params => {
+    const split = params.split('/');
+    return {
+      time: parseFloat(split[0]),
+    };
+  }
+
+  AviUtlBrowser.registerRenderer(async params => {
+    if (file !== params.userfile){
+      file = params.userfile;
+      if (file != null) {
+        await glsl.loadFragmentShader('/userfile');
+      }
+    }
+    if (file == null){
+      return '';
+    }
+    if (glsl.program == null) {
+      return '';
+    }
+
+    glsl.render(parseParams(params.param));
+    return '';
+  });
+</script>
+</body>
+</html>

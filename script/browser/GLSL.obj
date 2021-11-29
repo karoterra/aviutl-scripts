@@ -1,0 +1,13 @@
+--check0:DevTools,0
+--file:
+tonumber(nil)
+
+obj.setoption("drawtarget", "tempbuffer", obj.screen_w, obj.screen_h)
+obj.load("tempbuffer")
+
+require("browser").execute({
+  dir = "GLSL",
+  param = string.format("%f", obj.time),
+  userfile = file,
+  dev = obj.check0,
+})
