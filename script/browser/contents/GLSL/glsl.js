@@ -4,6 +4,12 @@ void main(void){
     gl_Position = vec4(position, 1.0);
 }`;
 
+  static vsSrcES300 = `#version 300 es
+in vec3 position;
+void main(void){
+  gl_Position = vec4(position, 1.0);
+}`;
+
   static position = new Float32Array([
     -1.0, 1.0, 0.0,
     1.0, 1.0, 0.0,
@@ -18,8 +24,8 @@ void main(void){
   constructor(canvas) {
     this.canvas = canvas;
     this.uniLocation = new Array();
-    this.gl = canvas.getContext('webgl');
-    this.vs = this.createShader(GLSL.vsSrc, this.gl.VERTEX_SHADER);
+    this.gl = canvas.getContext('webgl2');
+    this.vs = null;
     this.fs = null;
     this.program = null;
 
@@ -44,6 +50,7 @@ void main(void){
     this.gl.attachShader(program, this.fs);
     this.gl.linkProgram(program);
     if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)){
+      console.error(this.gl.getProgramInfoLog(program));
       return null;
     }
     this.gl.useProgram(program);
@@ -72,9 +79,18 @@ void main(void){
   }
 
   async loadFragmentShader(url) {
-    this.program = null;
+    if (this.program) {
+      this.gl.deleteProgram(this.program);
+      this.program = null;
+    }
+
     const src = await fetch(url).then(r => r.text());
     this.fs = this.createShader(src, this.gl.FRAGMENT_SHADER);
+    if (src.startsWith('#version 300 es')) {
+      this.vs = this.createShader(GLSL.vsSrcES300, this.gl.VERTEX_SHADER);
+    } else {
+      this.vs = this.createShader(GLSL.vsSrc, this.gl.VERTEX_SHADER);
+    }
 
     if (this.fs == null) return;
     this.program = this.createProgram();
