@@ -307,10 +307,11 @@ local function fixCollapse(src, dst)
 end
 
 -- ÉAÉìÉJÅ[ìôÇÃï`âÊóp
-local function drawMarker(obj, x, y, color)
-  obj.load("figure", "â~", 0xffffff, 25)
+local function drawMarker(obj, x, y, color, size, lw)
+  lw = lw or 5
+  obj.load("figure", "â~", 0xffffff, size)
   obj.draw(x, y)
-  obj.load("figure", "â~", color, 20)
+  obj.load("figure", "â~", color, size-lw)
   obj.draw(x, y)
 end
 

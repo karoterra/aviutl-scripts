@@ -19,6 +19,7 @@
 ]]
 
 local B = require("KaroterraBend")
+local markerSize = 25
 
 pA = pA or {0, 100, 0, -100}
 obj.setanchor("pA", 2)
@@ -116,7 +117,7 @@ if endMode == 1 then
   end
 end
 if obj.check0 then
-  minX, maxX, minY, maxY = minX - 12.5, maxX + 12.5, minY - 12.5, maxY + 12.5
+  minX, maxX, minY, maxY = minX - markerSize/2, maxX + markerSize/2, minY - markerSize/2, maxY + markerSize/2
 end
 local ox, oy = (maxX + minX) / 2, (maxY + minY) / 2
 
@@ -138,11 +139,11 @@ end
 
 -- アンカー表示
 if obj.check0 then
-  B.drawMarker(obj, curvS[1]-ox, curvS[2]-oy, 0xff00ff)
-  B.drawMarker(obj, curvE[1]-ox, curvE[2]-oy, 0x00ffff)
-  B.drawMarker(obj, ancC[1]-ox, ancC[2]-oy, 0x00ff00)
-  B.drawMarker(obj, ancS[1]-ox, ancS[2]-oy, 0xff0000)
-  B.drawMarker(obj, ancE[1]-ox, ancE[2]-oy, 0x0000ff)
+  B.drawMarker(obj, curvS[1]-ox, curvS[2]-oy, 0xff00ff, markerSize)
+  B.drawMarker(obj, curvE[1]-ox, curvE[2]-oy, 0x00ffff, markerSize)
+  B.drawMarker(obj, ancC[1]-ox, ancC[2]-oy, 0x00ff00, markerSize)
+  B.drawMarker(obj, ancS[1]-ox, ancS[2]-oy, 0xff0000, markerSize)
+  B.drawMarker(obj, ancE[1]-ox, ancE[2]-oy, 0x0000ff, markerSize)
 end
 
 obj.setoption("drawtarget", "framebuffer")
@@ -183,7 +184,7 @@ end
 @ベジェ曲線
 --track0:分割数,1,5000,16,1
 --check0:アンカー表示,1
---dialog:始点/chk,p1=1;終点/chk,p2=1;中心(0-6),p3=0;破綻回避/chk,p4=0;積分ステップ,p5=0.001;アンカー,pA={0,100,0,-100,100,-100,0,0,100,0};
+--dialog:始点/chk,p1=1;終点/chk,p2=1;中心(0-5),p3=0;破綻回避/chk,p4=0;積分ステップ,p5=0.001;アンカー,pA={0,100,0,-100,100,-100,0,0,100,0};
 --[[
   始点: 赤マーカーより外側を描画するか
   終点: 青マーカーより外側を描画するか
@@ -199,6 +200,7 @@ end
 ]]
 
 local B = require("KaroterraBend")
+local markerSize = 25
 
 pA = pA or {0,100, 0,-100, 100,-100, 0,0, 100,0}
 obj.setanchor("pA", 5)
@@ -209,7 +211,6 @@ local endMode = p2 or 1
 local centerMode = p3 or 0
 local collapse = p4 or 0
 local step = math.max(p5 or 0.001, 1e-5)
-print(step)
 
 local w, h = obj.getpixel()
 local ancS = {B.clamp(pA[1], -w/2, w/2), B.clamp(pA[2], -h/2, h/2)}
@@ -322,7 +323,7 @@ if endMode == 1 then
   end
 end
 if obj.check0 then
-  minX, maxX, minY, maxY = minX - 12.5, maxX + 12.5, minY - 12.5, maxY + 12.5
+  minX, maxX, minY, maxY = minX - markerSize/2, maxX + markerSize/2, minY - markerSize/2, maxY + markerSize/2
 end
 local ox, oy = (maxX + minX) / 2, (maxY + minY) / 2
 
@@ -352,12 +353,12 @@ if obj.check0 then
     B.drawLine(obj, x, y, x1, y1, 1, 0xffffff)
     x, y = x1, y1
   end
-  B.drawMarker(obj, dstI["e"][1]-ox, dstI["e"][2]-oy, 0x00ffff)
-  B.drawMarker(obj, ancS[1]-ox, ancS[2]-oy, 0xff0000)
-  B.drawMarker(obj, ancE[1]-ox, ancE[2]-oy, 0x0000ff)
-  B.drawMarker(obj, ctrl1[1]-ox, ctrl1[2]-oy, 0x333333)
-  B.drawMarker(obj, ctrl2[1]-ox, ctrl2[2]-oy, 0x333333)
-  B.drawMarker(obj, ctrl3[1]-ox, ctrl3[2]-oy, 0x00ff00)
+  B.drawMarker(obj, dstI["e"][1]-ox, dstI["e"][2]-oy, 0x00ffff, markerSize)
+  B.drawMarker(obj, ancS[1]-ox, ancS[2]-oy, 0xff0000, markerSize)
+  B.drawMarker(obj, ancE[1]-ox, ancE[2]-oy, 0x0000ff, markerSize)
+  B.drawMarker(obj, ctrl1[1]-ox, ctrl1[2]-oy, 0x333333, markerSize)
+  B.drawMarker(obj, ctrl2[1]-ox, ctrl2[2]-oy, 0x333333, markerSize)
+  B.drawMarker(obj, ctrl3[1]-ox, ctrl3[2]-oy, 0x00ff00, markerSize)
 end
 
 obj.setoption("drawtarget", "framebuffer")
