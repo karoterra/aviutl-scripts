@@ -38,6 +38,7 @@ Kuwahara filter により油絵風の加工を施す。
 ### 曲げKR
 画像を曲線に沿って曲げる。
 `KaroterraBend.lua` が必要。
+ニコニコ動画に[紹介動画](https://www.nicovideo.jp/watch/sm39711773)あり。
 
 ### ヨッシーアイランド
 ヨッシーアイランドゲームスタート時に横に流れる黒背景っぽいもの。
