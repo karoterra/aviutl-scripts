@@ -322,7 +322,7 @@ local function drawLine(obj, x1, y1, x2, y2, w, color, alpha)
   alpha = alpha or 1
 
   obj.load("figure", "éläpå`", color, 1)
-  rad = math.atan2(y2-y1, x2-x1) + math.pi / 2
+  local rad = math.atan2(y2-y1, x2-x1) + math.pi / 2
   local c, s = w * math.cos(rad), w * math.sin(rad)
   obj.drawpoly(
     x1 + c, y1 + s, 0,
