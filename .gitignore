@@ -2,3 +2,4 @@ lua
 *.dll
 release/
 aviutl/
+dev/

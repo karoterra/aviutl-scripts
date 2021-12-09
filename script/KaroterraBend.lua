@@ -306,6 +306,23 @@ local function fixCollapse(src, dst)
   return src, dst
 end
 
+-- xy座標の最小値,最大値を求める
+-- range: {minX, maxX, minY, maxY}
+local function calcRange(quads, range)
+  for i = 1, #quads do
+    for j = 1, 7, 2 do
+      local x, y = quads[i][j], quads[i][j+1]
+      if x < range[1] then range[1] = x
+      elseif x > range[2] then range[2] = x
+      end
+      if y < range[3] then range[3] = y
+      elseif y > range[4] then range[4] = y
+      end
+    end
+  end
+  return range
+end
+
 -- アンカー等の描画用
 local function drawMarker(obj, x, y, color, size, lw)
   lw = lw or 5
@@ -354,6 +371,7 @@ Bend.createEdge = createEdge
 Bend.createSrc = createSrc
 Bend.transformEdge = transformEdge
 Bend.fixCollapse = fixCollapse
+Bend.calcRange = calcRange
 Bend.drawMarker = drawMarker
 Bend.drawLine = drawLine
 Bend.drawpoly = drawpoly

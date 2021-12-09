@@ -63,16 +63,16 @@ else
   curvERad = curvRad - math.pi + (1-rate) * ancDist / radius
   curvS = {curvC[1] + radius*math.cos(curvSRad), curvC[2] + radius*math.sin(curvSRad)}
   curvE = {curvC[1] + radius*math.cos(curvERad), curvC[2] + radius*math.sin(curvERad)}
-  local la = B.calcLine(ancS[1], ancS[2], ancE[1], ancE[2])
-  local lc = {la[2], -la[1], la[1]*ancS[2] - la[2]*ancS[1]}
+  local c, s = math.cos(-ancRad+math.pi/2), math.sin(-ancRad+math.pi/2)
 
   for i = 1, #srcI do
     dstI[i] = {}
     for j = 1, #srcI[i], 2 do
       local x, y = srcI[i][j] - w/2, srcI[i][j+1] - h/2
-      local r = radius - B.distPtLine(x, y, la) * B.sign(B.cross(ancS[1],ancS[2], ancE[1],ancE[2], x,y))
-      local dist = B.distPtLine(x, y, lc)
-      local rad = curvSRad + dist / radius
+      local u, v = x-ancS[1], y-ancS[2]
+      u, v = u*c-v*s, u*s+v*c
+      local r = radius + u
+      local rad = curvSRad + v / radius
       dstI[i][j] = curvC[1] + r * math.cos(rad)
       dstI[i][j+1] = curvC[2] + r * math.sin(rad)
     end
@@ -90,39 +90,20 @@ for i = 1, #srcE do
 end
 
 -- キャンバス
-local minX, minY, maxX, maxY = dstI[1][1], dstI[1][2], dstI[1][1], dstI[1][2]
+local range = {dstI[1][1],dstI[1][1], dstI[1][2],dstI[1][2]}
+B.calcRange(dstI, range)
+if startMode == 1 then B.calcRange(dstS, range) end
+if endMode == 1 then B.calcRange(dstE, range) end
 if obj.check0 then
-  minX, maxX, minY, maxY = -w/2, w/2, -h/2, h/2
+  range[1] = math.min(range[1],-w/2) - markerSize/2
+  range[2] = math.max(range[2], w/2) + markerSize/2
+  range[3] = math.min(range[3],-h/2) - markerSize/2
+  range[4] = math.max(range[4], h/2) + markerSize/2
 end
-for i = 1, #dstI do
-  minX = math.min(minX, dstI[i][1], dstI[i][3], dstI[i][5], dstI[i][7])
-  maxX = math.max(maxX, dstI[i][1], dstI[i][3], dstI[i][5], dstI[i][7])
-  minY = math.min(minY, dstI[i][2], dstI[i][4], dstI[i][6], dstI[i][8])
-  maxY = math.max(maxY, dstI[i][2], dstI[i][4], dstI[i][6], dstI[i][8])
-end
-if startMode == 1 then
-  for i = 1, #dstS do
-    minX = math.min(minX, dstS[i][1], dstS[i][3], dstS[i][5], dstS[i][7])
-    maxX = math.max(maxX, dstS[i][1], dstS[i][3], dstS[i][5], dstS[i][7])
-    minY = math.min(minY, dstS[i][2], dstS[i][4], dstS[i][6], dstS[i][8])
-    maxY = math.max(maxY, dstS[i][2], dstS[i][4], dstS[i][6], dstS[i][8])
-  end
-end
-if endMode == 1 then
-  for i = 1, #dstE do
-    minX = math.min(minX, dstE[i][1], dstE[i][3], dstE[i][5], dstE[i][7])
-    maxX = math.max(maxX, dstE[i][1], dstE[i][3], dstE[i][5], dstE[i][7])
-    minY = math.min(minY, dstE[i][2], dstE[i][4], dstE[i][6], dstE[i][8])
-    maxY = math.max(maxY, dstE[i][2], dstE[i][4], dstE[i][6], dstE[i][8])
-  end
-end
-if obj.check0 then
-  minX, maxX, minY, maxY = minX - markerSize/2, maxX + markerSize/2, minY - markerSize/2, maxY + markerSize/2
-end
-local ox, oy = (maxX + minX) / 2, (maxY + minY) / 2
+local ox, oy = (range[2] + range[1]) / 2, (range[4] + range[3]) / 2
 
 -- 描画
-obj.setoption("drawtarget", "tempbuffer", maxX-minX, maxY-minY)
+obj.setoption("drawtarget", "tempbuffer", range[2]-range[1], range[4]-range[3])
 
 if obj.check0 then
   obj.draw(-ox,-oy,0, 1, 0.5)
@@ -235,7 +216,7 @@ local function bezier(t, s)
   local x = (1-t)^3*ancS[1] + 3*(1-t)^2*t*ctrl1[1] + 3*(1-t)*t^2*ctrl2[1] + t^3*ctrl3[1]
   local y = (1-t)^3*ancS[2] + 3*(1-t)^2*t*ctrl1[2] + 3*(1-t)*t^2*ctrl2[2] + t^3*ctrl3[2]
   local dx, dy = bezierDt(t)
-  local rad = math.atan2(dy, dx) + math.pi / 2
+  local rad = math.atan2(dy, dx) - math.pi / 2
   x, y = x + s * math.cos(rad), y + s * math.sin(rad)
   return x, y
 end
@@ -244,8 +225,7 @@ local srcS, srcE, srcI = B.createSrc(ancS, ancE, w, h, div)
 local dstS, dstE, dstI = {}, {}, {}
 
 -- 変換
-local la = B.calcLine(ancS[1], ancS[2], ancE[1], ancE[2])
-local lc = {la[2], -la[1], la[1]*ancS[2] - la[2]*ancS[1]}
+local c, s = math.cos(-ancRad+math.pi/2), math.sin(-ancRad+math.pi/2)
 local ptE = {idx="e", pt=1, dist=ancDist, s=0}
 local pt = {ptE}
 dstI["e"] = {0,0}
@@ -253,11 +233,9 @@ for i = 1, #srcI do
   dstI[i] = {}
   for j = 1, #srcI[i], 2 do
     local x, y = srcI[i][j] - w/2, srcI[i][j+1] - h/2
-    pt[#pt+1] = {
-      idx=i, pt=j,
-      dist=B.distPtLine(x, y, lc),
-      s=B.distPtLine(x, y, la) * B.sign(B.cross(ancS[1],ancS[2], ancE[1],ancE[2], x,y))
-    }
+    local u, v = x-ancS[1], y-ancS[2]
+    u, v = u*c-v*s, u*s+v*c
+    pt[#pt+1] = {idx=i, pt=j, dist=v, s=u}
   end
 end
 table.sort(pt, function(a, b) return a.dist < b.dist end)
@@ -293,42 +271,20 @@ for i = 1, #srcE do
 end
 
 -- キャンバス
-local minX, minY, maxX, maxY = dstI[1][1], dstI[1][2], dstI[1][1], dstI[1][2]
+local range = {dstI[1][1],dstI[1][1], dstI[1][2],dstI[1][2]}
+B.calcRange(dstI, range)
+if startMode == 1 then B.calcRange(dstS, range) end
+if endMode == 1 then B.calcRange(dstE, range) end
 if obj.check0 then
-  minX = math.min(-w/2, ctrl1[1], ctrl2[1], ctrl3[1])
-  maxX = math.max( w/2, ctrl1[1], ctrl2[1], ctrl3[1])
-  minY = math.min(-h/2, ctrl1[2], ctrl2[2], ctrl3[2])
-  maxY = math.max( h/2, ctrl1[2], ctrl2[2], ctrl3[2])
+  range[1] = math.min(range[1],-w/2,ctrl1[1],ctrl2[1],ctrl3[1]) - markerSize/2
+  range[2] = math.max(range[2], w/2,ctrl1[1],ctrl2[1],ctrl3[1]) + markerSize/2
+  range[3] = math.min(range[3],-h/2,ctrl1[2],ctrl2[2],ctrl3[2]) - markerSize/2
+  range[4] = math.max(range[4], h/2,ctrl1[2],ctrl2[2],ctrl3[2]) + markerSize/2
 end
-for i = 1, #dstI do
-  minX = math.min(minX, dstI[i][1], dstI[i][3], dstI[i][5], dstI[i][7])
-  maxX = math.max(maxX, dstI[i][1], dstI[i][3], dstI[i][5], dstI[i][7])
-  minY = math.min(minY, dstI[i][2], dstI[i][4], dstI[i][6], dstI[i][8])
-  maxY = math.max(maxY, dstI[i][2], dstI[i][4], dstI[i][6], dstI[i][8])
-end
-if startMode == 1 then
-  for i = 1, #dstS do
-    minX = math.min(minX, dstS[i][1], dstS[i][3], dstS[i][5], dstS[i][7])
-    maxX = math.max(maxX, dstS[i][1], dstS[i][3], dstS[i][5], dstS[i][7])
-    minY = math.min(minY, dstS[i][2], dstS[i][4], dstS[i][6], dstS[i][8])
-    maxY = math.max(maxY, dstS[i][2], dstS[i][4], dstS[i][6], dstS[i][8])
-  end
-end
-if endMode == 1 then
-  for i = 1, #dstE do
-    minX = math.min(minX, dstE[i][1], dstE[i][3], dstE[i][5], dstE[i][7])
-    maxX = math.max(maxX, dstE[i][1], dstE[i][3], dstE[i][5], dstE[i][7])
-    minY = math.min(minY, dstE[i][2], dstE[i][4], dstE[i][6], dstE[i][8])
-    maxY = math.max(maxY, dstE[i][2], dstE[i][4], dstE[i][6], dstE[i][8])
-  end
-end
-if obj.check0 then
-  minX, maxX, minY, maxY = minX - markerSize/2, maxX + markerSize/2, minY - markerSize/2, maxY + markerSize/2
-end
-local ox, oy = (maxX + minX) / 2, (maxY + minY) / 2
+local ox, oy = (range[2] + range[1]) / 2, (range[4] + range[3]) / 2
 
 -- 描画
-obj.setoption("drawtarget", "tempbuffer", maxX-minX, maxY-minY)
+obj.setoption("drawtarget", "tempbuffer", range[2]-range[1], range[4]-range[3])
 
 if obj.check0 then
   obj.draw(-ox,-oy,0, 1, 0.5)
