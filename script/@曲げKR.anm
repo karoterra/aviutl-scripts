@@ -3,7 +3,7 @@
 --track1:割合,0,100,0,0.01
 --track2:分割数,1,5000,16,1
 --check0:アンカー表示,1
---dialog:始点/chk,p1=1;終点/chk,p2=1;中心(0-6),p3=0;破綻回避/chk,p4=0;アンカー,pA={0,100,0,-100};
+--dialog:始点/chk,p1=1;終点/chk,p2=1;中心(0-6),p3=0;破綻回避/chk,p4=0;細分化,p5=1;アンカー,pA={0,100,0,-100};
 --[[
   始点: 赤マーカーより外側を描画するか
   終点: 青マーカーより外側を描画するか
@@ -32,6 +32,7 @@ local startMode = p1 or 1
 local endMode = p2 or 1
 local centerMode = p3 or 0
 local collapse = p4 or 0
+local subdiv = math.max(math.floor(p5 or 1), 1)
 
 local w, h = obj.getpixel()
 local ancS = {B.clamp(pA[1], -w/2, w/2), B.clamp(pA[2], -h/2, h/2)}
@@ -113,7 +114,11 @@ obj.setoption("blend", "alpha_add2")
 if startMode == 1 then
   for i = 1, #srcS do B.drawpoly(obj, dstS[i], ox, oy, srcS[i]) end
 end
-for i = 1, #srcI do B.drawpoly(obj, dstI[i], ox, oy, srcI[i]) end
+if subdiv > 1 then
+  for i = 1, #srcI do B.subdivDrawpoly(obj, dstI[i], ox,oy, srcI[i], subdiv) end
+else
+  for i = 1, #srcI do B.drawpoly(obj, dstI[i], ox, oy, srcI[i]) end
+end
 if endMode == 1 then
   for i = 1, #srcE do B.drawpoly(obj, dstE[i], ox, oy, srcE[i]) end
 end
@@ -165,7 +170,7 @@ end
 @ベジェ曲線
 --track0:分割数,1,5000,16,1
 --check0:アンカー表示,1
---dialog:始点/chk,p1=1;終点/chk,p2=1;中心(0-5),p3=0;破綻回避/chk,p4=0;積分ステップ,p5=0.001;アンカー,pA={0,100,0,-100,100,-100,0,0,100,0};
+--dialog:始点/chk,p1=1;終点/chk,p2=1;中心(0-5),p3=0;破綻回避/chk,p4=0;積分ステップ,p5=0.001;細分化,p6=1;アンカー,pA={0,100,0,-100,100,-100,0,0,100,0};
 --[[
   始点: 赤マーカーより外側を描画するか
   終点: 青マーカーより外側を描画するか
@@ -192,6 +197,7 @@ local endMode = p2 or 1
 local centerMode = p3 or 0
 local collapse = p4 or 0
 local step = math.max(p5 or 0.001, 1e-5)
+local subdiv = math.max(math.floor(p6 or 1), 1)
 
 local w, h = obj.getpixel()
 local ancS = {B.clamp(pA[1], -w/2, w/2), B.clamp(pA[2], -h/2, h/2)}
@@ -294,7 +300,11 @@ obj.setoption("blend", "alpha_add2")
 if startMode == 1 then
   for i = 1, #srcS do B.drawpoly(obj, dstS[i], ox, oy, srcS[i]) end
 end
-for i = 1, #srcI do B.drawpoly(obj, dstI[i], ox, oy, srcI[i]) end
+if subdiv > 1 then
+  for i = 1, #srcI do B.subdivDrawpoly(obj, dstI[i], ox,oy, srcI[i], subdiv) end
+else
+  for i = 1, #srcI do B.drawpoly(obj, dstI[i], ox, oy, srcI[i]) end
+end
 if startMode == 1 then
   for i = 1, #srcE do B.drawpoly(obj, dstE[i], ox, oy, srcE[i]) end
 end

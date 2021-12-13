@@ -359,6 +359,35 @@ local function drawpoly(obj, xy, ox, oy, uv, alpha)
   )
 end
 
+-- polyÇNxNÇ…ç◊ï™âªÇµÇƒï`âÊ
+local function subdivDrawpoly(obj, xy, ox, oy, uv, N)
+  local N2 = N*N
+  for i1=0,N-1 do
+    local i2, I1, I2 = i1+1, N-i1, N-i1-1
+    for j1=0,N-1 do
+      local j2, J1, J2 = j1+1, N-j1, N-j1-1
+      obj.drawpoly(
+        (I1*J1*xy[1]+I1*j1*xy[3]+i1*j1*xy[5]+i1*J1*xy[7])/N2 - ox,
+        (I1*J1*xy[2]+I1*j1*xy[4]+i1*j1*xy[6]+i1*J1*xy[8])/N2 - oy, 0,
+        (I1*J2*xy[1]+I1*j2*xy[3]+i1*j2*xy[5]+i1*J2*xy[7])/N2 - ox,
+        (I1*J2*xy[2]+I1*j2*xy[4]+i1*j2*xy[6]+i1*J2*xy[8])/N2 - oy, 0,
+        (I2*J2*xy[1]+I2*j2*xy[3]+i2*j2*xy[5]+i2*J2*xy[7])/N2 - ox,
+        (I2*J2*xy[2]+I2*j2*xy[4]+i2*j2*xy[6]+i2*J2*xy[8])/N2 - oy, 0,
+        (I2*J1*xy[1]+I2*j1*xy[3]+i2*j1*xy[5]+i2*J1*xy[7])/N2 - ox,
+        (I2*J1*xy[2]+I2*j1*xy[4]+i2*j1*xy[6]+i2*J1*xy[8])/N2 - oy, 0,
+        (I1*J1*uv[1]+I1*j1*uv[3]+i1*j1*uv[5]+i1*J1*uv[7])/N2,
+        (I1*J1*uv[2]+I1*j1*uv[4]+i1*j1*uv[6]+i1*J1*uv[8])/N2,
+        (I1*J2*uv[1]+I1*j2*uv[3]+i1*j2*uv[5]+i1*J2*uv[7])/N2,
+        (I1*J2*uv[2]+I1*j2*uv[4]+i1*j2*uv[6]+i1*J2*uv[8])/N2,
+        (I2*J2*uv[1]+I2*j2*uv[3]+i2*j2*uv[5]+i2*J2*uv[7])/N2,
+        (I2*J2*uv[2]+I2*j2*uv[4]+i2*j2*uv[6]+i2*J2*uv[8])/N2,
+        (I2*J1*uv[1]+I2*j1*uv[3]+i2*j1*uv[5]+i2*J1*uv[7])/N2,
+        (I2*J1*uv[2]+I2*j1*uv[4]+i2*j1*uv[6]+i2*J1*uv[8])/N2
+      )
+    end
+  end
+end
+
 Bend.sign = sign
 Bend.clamp = clamp
 Bend.cross = cross
@@ -375,5 +404,6 @@ Bend.calcRange = calcRange
 Bend.drawMarker = drawMarker
 Bend.drawLine = drawLine
 Bend.drawpoly = drawpoly
+Bend.subdivDrawpoly = subdivDrawpoly
 
 return Bend
