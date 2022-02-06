@@ -3,3 +3,4 @@ lua
 release/
 aviutl/
 dev/
+*.VC.DB*
