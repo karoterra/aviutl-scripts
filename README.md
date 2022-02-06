@@ -18,10 +18,8 @@ Kuwahara filter により油絵風の加工を施す。
 ニコニコ動画に[紹介動画](https://www.nicovideo.jp/watch/sm39051118)あり。
 
 ### 動く多角形
-トラックバーで頂点座標を設定して多角形を描画する。
-カスタムオブジェクト「動く多角形ベース」にアニメーション効果「頂点追加@動く多角形」、「描画@動く多角形」を適用して使う。
-`KaroterraDynamicPolygon.dll`が必要。
-ニコニコ動画に[紹介動画](https://www.nicovideo.jp/watch/sm38752367)あり。
+[karoterra/aviutl-DynamicPolygon](https://github.com/karoterra/aviutl-DynamicPolygon)
+に移動しました。
 
 ### サムネチェック
 ニコニコ動画のサムネに表示される再生時間と広告枠確認用。
