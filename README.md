@@ -32,9 +32,8 @@ DLL が必要なものについては
 [aviutl_browser](https://github.com/oov/aviutl_browser)を使うスクリプト。
 
 ### 曲げKR
-画像を曲線に沿って曲げる。
-`KaroterraBend.lua` が必要。
-ニコニコ動画に[紹介動画](https://www.nicovideo.jp/watch/sm39711773)あり。
+[karoterra/aviutl-Bend](https://github.com/karoterra/aviutl-Bend)
+に移動しました。
 
 ### ヨッシーアイランド
 ヨッシーアイランドゲームスタート時に横に流れる黒背景っぽいもの。
