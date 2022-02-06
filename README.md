@@ -12,10 +12,8 @@ DLL が必要なものについては
 ## コンテンツ
 
 ### 油絵
-Kuwahara filter により油絵風の加工を施す。
-高橋直哉氏の[油絵スクリプト](https://www.nicovideo.jp/watch/sm35695116)の処理速度を向上させたもの。
-`油絵.anm`、`KaroterraOilPainting.dll` が必要。
-ニコニコ動画に[紹介動画](https://www.nicovideo.jp/watch/sm39051118)あり。
+[karoterra/aviutl-OilPainting](https://github.com/karoterra/aviutl-OilPainting)
+に移動しました。
 
 ### 動く多角形
 [karoterra/aviutl-DynamicPolygon](https://github.com/karoterra/aviutl-DynamicPolygon)
