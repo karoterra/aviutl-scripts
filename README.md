@@ -26,7 +26,8 @@ DLL が必要なものについては
 キャラチップの様に画像が並んでいるオブジェクトに適用して1マス分切り出せる。
 
 ### 多目的スライダー
-[PSDToolKit](https://github.com/oov/aviutl_psdtoolkit)で使う多目的スライダー用スクリプト。
+[karoterra/aviutl-MultiPurposeSlider-preset](https://github.com/karoterra/aviutl-MultiPurposeSlider-preset)
+に移動しました。
 
 ### browser
 [aviutl_browser](https://github.com/oov/aviutl_browser)を使うスクリプト。
